@@ -1,5 +1,6 @@
 from django.shortcuts import redirect, render
-from administrador import funcs
+from django.forms.models import model_to_dict
+from administrador import utils
 from rest.models import *
 
 ## PANEL DE CONTROL
@@ -13,7 +14,7 @@ def panel_control(request):
 ## MIS DISPOSITIVOS
 def dispositivos(request):
 	dispositivos = Dispositivo.objects.all() 					## BUSCAR DISPOSITIVOS
-	dispositivos = funcs.empaquetar(dispositivos) 				## EMPAQUETAR DISPOSITIVOS
+	dispositivos = utils.empaquetar(dispositivos) 				## EMPAQUETAR DISPOSITIVOS
 	paquete = {
 		'OPCION' : 'dispositivos',
 		'DISPOSITIVOS_ACTIVE' : 'active',
@@ -41,7 +42,7 @@ def cambiarEstadoDispositivo(request):
 ## MIS LLAVES
 def llaves(request):
 	llaves = Llave.objects.all()								## BUSCAR LLAVES
-	llaves = funcs.empaquetar(llaves) 							## EMPAQUETAR DISPOSITIVOS
+	llaves = utils.empaquetar(llaves) 							## EMPAQUETAR DISPOSITIVOS
 	paquete = {
 		'OPCION' : 'llaves',
 		'LLAVES_ACTIVE' : 'active',

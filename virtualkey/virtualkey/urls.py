@@ -1,6 +1,6 @@
 """virtualkey URL Configuration
 
-The `urlpatterns` list routes URLs to views. For more information please see:
+The `urlpatterns` list routes URLs to rest_views. For more information please see:
     https://docs.djangoproject.com/en/2.2/topics/http/urls/
 Examples:
 Function views
@@ -15,10 +15,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from administrador import views
+from rest import views as rest_views
 from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    #############################################################
+                        ## ADMINISTRADOR
+    #############################################################
+
     ##	INDEX
     path('', views.panel_control, name='panel_control'),
     ##	MIS DISPOSITIVOS
@@ -29,4 +35,10 @@ urlpatterns = [
     ##	MIS LLAVES
     path('llaves', views.llaves, name='llaves'),
     path('llaves/revocar', views.revocarLlave, name='revocarLlave'),
+
+    #############################################################
+                        ## REST API 
+    #############################################################
+    path('rest/dispositivo/get', rest_views.get_dispositivo, name='get_dispositivo'),
+
 ]

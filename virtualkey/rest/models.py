@@ -2,8 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-# Create your models here.
-class Llave (models.Model):
+class Usuario(models.Model):
+    def getUser(self, usuario_id):
+        try:
+            usuario = User.objects.get(pk=usuario_id)
+            return usuario
+        except :
+            return None
+
+
+class Llave(models.Model):
     dispositivo = models.ForeignKey('Dispositivo', on_delete=models.CASCADE)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     fecha_inicio = models.DateTimeField()
