@@ -1,0 +1,36 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Mis Llaves</h1>
+</div>
+
+{% for llaves in LLAVES_EMPAQUETADOS%}
+  <div class="container">
+    <div class="card-deck mb-3 text-center">
+      {% for llave in llaves %}
+        {% if llave %}
+          <div class="card mb-4 shadow-sm">
+            <div class="card-header">
+              <h4 class="my-0 font-weight-normal">{{ llave.dispositivo.nombre }}</h4>
+            </div>
+            <div class="card-body">
+              <h5>{{ llave.estado }}</h5>
+              <ul class="list-unstyled mt-3 mb-4" style="text-align: left;">
+                <li>Compartido por: <b>{{ llave.usuario.first_name }} {{ llave.usuario.last_name }}</b></li>
+                {% if llave.estado == "Activa" %}
+                  <li>Activa hasta <b>{{ llave.fecha_expiracion }}</b> </li>
+                {% elif llave.estado == "No activa" %}
+                  <li>Se activa después de <b>{{ llave.fecha_inicio }}</b> </li>
+                {% elif llave.estado == "Expirada" %}
+                  <li>Expiró el <b>{{ llave.fecha_expiracion }}</b> </li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+        {% else %}
+          <div class="card mb-4 shadow-sm" style="opacity: 0">
+            
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+{% endfor %}

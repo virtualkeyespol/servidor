@@ -1,0 +1,70 @@
+{% load static %}
+{% include 'General/header.html' %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/General/dashboard.css' %}">
+<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+  <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Virtual Key</a>
+  <ul class="navbar-nav px-3">
+    <li class="nav-item text-nowrap">
+      <a class="nav-link" href="#">Cerrar Sesión</a>
+    </li>
+  </ul>
+</nav>
+
+<div class="container-fluid">
+  <div class="row">
+    <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+      <div class="sidebar-sticky">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link {{ PANEL_CONTROL_ACTIVE }}" href="/">
+              <span data-feather="home"></span>
+              Panel de Control <span class="sr-only">(current)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ DISPOSITIVOS_ACTIVE }}" href="/dispositivos">
+              <span data-feather="cpu"></span>
+              Mis Dispositivos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ LLAVES_ACTIVE }}" href="/llaves">
+              <span data-feather="key"></span>
+              Mis llaves
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="users"></span>
+              Mi cuenta
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="bar-chart-2"></span>
+              Reportes
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+      {% if OPCION == "panel_control" %}
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Panel de Control</h1>
+        </div>
+        <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+      <!-- MIS DISPOSITIVOS -->
+      {% elif OPCION == "dispositivos" %}
+        {% include 'Dispositivo/dispositivo.html' %}
+      {% elif OPCION == "ver_dispositivo" %}
+        {% include 'Dispositivo/ver_dispositivo.html' %}
+      {% elif OPCION == "llaves" %}
+        {% include 'Llave/llave.html' %}
+      {% endif %}
+    </main>
+  </div>
+</div>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+<script type="text/javascript" src="{% static 'js/Dashboard/dashboard.js' %}"></script>
