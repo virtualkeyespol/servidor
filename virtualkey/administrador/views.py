@@ -1,6 +1,5 @@
 from django.shortcuts import redirect, render
 from django.forms.models import model_to_dict
-from administrador import utils
 from rest.models import *
 
 ## PANEL DE CONTROL
