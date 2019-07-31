@@ -25,34 +25,58 @@ urlpatterns = [
                         ## ADMINISTRADOR
     #############################################################
 
+    ##  ERROR
+    path('error',                                   views.error_page,                       name='error_page'),
+
+    ##  AUTH
+    path('nuevousuario',                            views.nuevousuario,                     name='nuevousuario'),
+    path('login',                                   views.iniciar_sesion,                   name='iniciar_sesion'),
+    path('logout',                                  views.cerrar_sesion,                    name='cerrar_sesion'),
+
     ##	INDEX
-    path('', views.panel_control, name='panel_control'),
+    path('',                                        views.panel_control,                    name='panel_control'),
+
     ##	MIS DISPOSITIVOS
-    path('dispositivos',                views.dispositivos,                 name='dispositivos'),
-    path('dispositivos/ver/<str:id>',   views.ver_dispositivo,              name='ver_dispositivo'),
-    path('dispositivos/cambiarEstado',  views.cambiarEstadoDispositivo,     name='cambiarEstadoDispositivo'),
+    path('dispositivos',                            views.dispositivos,                     name='dispositivos'),
+    path('dispositivos/ver/<str:id>',               views.ver_dispositivo,                  name='ver_dispositivo'),
+    path('dispositivos/cambiarEstado',              views.cambiarEstadoDispositivo,         name='cambiarEstadoDispositivo'),
+    path('dispositivos/compartir/<str:id>',         views.compartir_acceso,                 name='compartir_acceso'),
     
     ##	MIS LLAVES
-    path('llaves',                      views.llaves,                       name='llaves'),
-    path('llaves/revocar',              views.revocarLlave,                 name='revocarLlave'),
+    path('llaves',                                  views.llaves,                           name='llaves'),
+    path('llaves/revocar',                          views.revocarLlave,                     name='revocarLlave'),
+
+    ##  CUENTA
+    path('cuenta',                                  views.cuenta,                           name='cuenta'),
+    path('cuenta/editar',                           views.editar_cuenta,                    name='editar_cuenta'),
+
+    ##  REPORTES
+    path('reportes',                                views.reportes,                         name='reportes'),
 
     #############################################################
                         ## REST API 
     #############################################################
+    ##  AUTH
+    path('rest/login',                              rest_views.rest_iniciar_sesion,         name='rest_iniciar_sesion'),
+    path('rest/logout',                             rest_views.rest_cerrar_sesion,          name='rest_cerrar_sesion'),
+
     ##  DISPOSITIVO
-    path('rest/dispositivo/create',     rest_views.create_dispositivo,      name='create_dispositivo'),
-    path('rest/dispositivo/read',       rest_views.read_dispositivo,        name='read_dispositivo'),
-    path('rest/dispositivo/update',     rest_views.update_dispositivo,      name='update_dispositivo'),
-    path('rest/dispositivo/delete',     rest_views.delete_dispositivo,      name='delete_dispositivo'),
+    path('rest/dispositivo/create',                 rest_views.create_dispositivo,          name='create_dispositivo'),
+    path('rest/dispositivo/read',                   rest_views.read_dispositivo,            name='read_dispositivo'),
+    path('rest/dispositivo/update',                 rest_views.update_dispositivo,          name='update_dispositivo'),
+    path('rest/dispositivo/delete',                 rest_views.delete_dispositivo,          name='delete_dispositivo'),
 
     ##  LLAVE
-    path('rest/llave/create',           rest_views.create_llave,            name='create_llave'),
-    path('rest/llave/read',             rest_views.read_llave,              name='read_llave'),
-    path('rest/llave/update',           rest_views.update_llave,            name='update_llave'),
+    path('rest/llave/create',                       rest_views.create_llave,                name='create_llave'),
+    path('rest/llave/read',                         rest_views.read_llave,                  name='read_llave'),
+    path('rest/llave/update',                       rest_views.update_llave,                name='update_llave'),
 
     ## REGISTRO
-    path('rest/registro/create',        rest_views.create_registro,         name='create_registro'),
-    path('rest/registro/read',          rest_views.read_registro,           name='read_registro'),
+    path('rest/registro/create',                    rest_views.create_registro,             name='create_registro'),
+    path('rest/registro/read',                      rest_views.read_registro,               name='read_registro'),
+
+
+
 ]
 
 

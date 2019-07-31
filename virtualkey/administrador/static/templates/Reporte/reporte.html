@@ -1,0 +1,30 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Reportes</h1>
+</div>
+<div class="container">
+  {% for reporte in REPORTES %}
+  <h2>{{ reporte.dispositivo }}</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Usuario</th>
+        <th scope="col">Acción</th>
+        <th scope="col">Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in reporte.reportes %}
+        <tr>
+          <td>{{ r.usuario.first_name }} {{ r.usuario.last_name }}</td>
+          {% if r.dispositivo.estado %}
+            <td>Bloqueado</td>
+          {% else %}
+            <td>Desbloqueado</td>
+          {% endif %}
+          <td>{{ r.fecha }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>  
+  {% endfor %}
+</div>

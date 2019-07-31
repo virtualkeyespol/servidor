@@ -1,16 +1,21 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
   <h1 class="h2"><a href="/dispositivos" style="color: black;"><span data-feather="chevron-left" style="height: 30px; width: 30px;"></span></a> {{ DISPOSITIVO.nombre }}</h1>
-  <form method="POST" action="/dispositivos/cambiarEstado">
-    {% csrf_token %}
-    <input type="hidden" name="DISPOSITIVO_ID" value="{{ DISPOSITIVO.id }}">
-    {% if DISPOSITIVO.estado %}
-      <input type="hidden" name="ESTADO" value="False">
-      <button class="btn btn-lg btn-block btn-success"><span data-feather="unlock" style="height: 25px; width: 25px;"></span> Desbloquear</button>
-    {% else %}
-      <input type="hidden" name="ESTADO" value="True">
-      <button class="btn btn-lg btn-block btn-danger"><span data-feather="lock" style="height: 25px; width: 25px;"></span> Bloquear</button>
-    {% endif %}
-  </form>
+  <div style="display: flex;">
+    <form action="/dispositivos/compartir/{{ DISPOSITIVO.id }}" method="GET" style="margin-right: 20px;">
+      <button class="btn btn-lg btn-block btn-primary"><span data-feather="share" style="height: 25px; width: 25px;"></span> Compartir Llave</button>
+    </form>
+    <form method="POST" action="/dispositivos/cambiarEstado">
+      {% csrf_token %}
+      <input type="hidden" name="DISPOSITIVO_ID" value="{{ DISPOSITIVO.id }}">
+      {% if DISPOSITIVO.estado %}
+        <input type="hidden" name="ESTADO" value="False">
+        <button class="btn btn-lg btn-block btn-success"><span data-feather="unlock" style="height: 25px; width: 25px;"></span> Desbloquear</button>
+      {% else %}
+        <input type="hidden" name="ESTADO" value="True">
+        <button class="btn btn-lg btn-block btn-danger"><span data-feather="lock" style="height: 25px; width: 25px;"></span> Bloquear</button>
+      {% endif %}
+    </form>
+  </div>
 </div>
 
 <div class="container">
@@ -35,7 +40,11 @@
       <tbody>
         {% for llave in LLAVES %}
         <tr>
-          <td>{{ llave.usuario.first_name }} {{ llave.usuario.last_name }}</td>
+          {% if llave.usuario %}
+            <td>{{ llave.usuario.first_name }} {{ llave.usuario.last_name }}</td>
+          {% else %}
+            <td>{{ llave.correo }}</td>
+          {% endif %}
           <td>{{ llave.fecha_inicio }}</td>
           <td>{{ llave.fecha_expiracion }}</td>
           <td>{{ llave.estado }}</td>

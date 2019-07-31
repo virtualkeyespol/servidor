@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.forms.models import model_to_dict
+from django.contrib.auth import authenticate, login, logout
 
 from rest import utils
 from rest.models import *
@@ -13,6 +14,50 @@ from rest.models import *
 
 
 #############################################################
+                    ## AUTENTICACION
+#############################################################
+
+##  La función toma dos parámetros <USUARIO> y <CONTRASENA> (a través de POST)
+##  Con éxito la función retorna mensaje de inició de sesión, con error la función retorna mensaje de error.
+@csrf_exempt
+def rest_iniciar_sesion(request):
+    if request.method == "POST":
+        body = utils.request_todict(request)
+        username = body.get("USUARIO", None)
+        password = body.get("CONTRASENA", None)
+        usuario = authenticate(request, username=username, password=password)
+        if usuario is not None:
+            login(request, usuario)
+            return JsonResponse({
+                'STATUS' : 'OK',
+                'RESPUESTA' : usuario.id
+            })
+        else:
+            return JsonResponse({
+                'STATUS' : 'ERROR',
+                'RESPUESTA' : 'Error de credenciales'
+            })            
+    return JsonResponse({
+        'STATUS' : 'ERROR',
+        'RESPUESTA' : 'Error de solicitud'
+    })
+
+##  La función toma no toma ningún paráremtro (a través de POST)
+##  Con éxito la función retorna mensaje de cierre de sesión, con error la función retorna mensaje de error.
+@csrf_exempt
+def rest_cerrar_sesion(request):
+    if request.method == "POST" and request.user.is_authenticated:
+        logout(request)
+        return JsonResponse({
+            'STATUS' : 'OK',
+            'RESPUESTA' : 'Sesión cerrada'
+        })            
+    return JsonResponse({
+        'STATUS' : 'ERROR',
+        'RESPUESTA' : 'Error de solicitud'
+    })
+
+#############################################################
                     ## DISPOSITIVOS
 #############################################################
 
@@ -20,7 +65,7 @@ from rest.models import *
 ##  Con éxito la función retorna la instancia de dispositivo creada, con error la función retorna mensaje de error.
 @csrf_exempt
 def create_dispositivo(request):
-    if request.method == "POST":
+    if request.method == "POST" and request.user.is_authenticated:
         body = utils.request_todict(request)
         dispositivo = Dispositivo().create(body)
         if dispositivo:
@@ -40,7 +85,7 @@ def create_dispositivo(request):
 ##  Con éxito la función retorna una o varias instancias de dispositivo según solicitada, 
 ##  con error la función retorna mensaje de error.
 def read_dispositivo(request):
-    if request.method == "GET":
+    if request.method == "GET" and request.user.is_authenticated:
         body = request.GET
         respuesta = Dispositivo().read(body)
         if respuesta:
@@ -59,7 +104,7 @@ def read_dispositivo(request):
 ##  Parámetro <ESTADO> acepta "True" o "False"
 @csrf_exempt
 def update_dispositivo(request):
-    if request.method == "POST":
+    if request.method == "POST" and request.user.is_authenticated:
         body = utils.request_todict(request)
         dispositivo = Dispositivo().update(body)
         if dispositivo:
@@ -76,7 +121,7 @@ def update_dispositivo(request):
 ##  Con éxito la función retorna mensaje de éxito, con error la función retorna mensaje de error.
 @csrf_exempt
 def delete_dispositivo(request):
-    if request.method == "POST":
+    if request.method == "POST" and request.user.is_authenticated:
         body = utils.request_todict(request)
         respuesta = Dispositivo().delete_(body)
         if respuesta:
@@ -99,7 +144,7 @@ def delete_dispositivo(request):
 ##  Parámetro <FECHA_INICIO> y <FECHA_EXPIRACION> aceptan formato ej. "2019-07-23T05:40:27Z"
 @csrf_exempt
 def create_llave(request):
-    if request.method == "POST":
+    if request.method == "POST" and request.user.is_authenticated:
         body = utils.request_todict(request)
         llave = Llave().create(body)
         if llave:
@@ -119,7 +164,7 @@ def create_llave(request):
 ##  Con éxito la función retorna una o varias instancias de la o las llaves según solicitada, 
 ##  con error la función retorna mensaje de error.
 def read_llave(request):
-    if request.method == "GET":
+    if request.method == "GET" and request.user.is_authenticated:
         body = request.GET
         respuesta = Llave().read(body)
         if respuesta:
@@ -139,7 +184,7 @@ def read_llave(request):
 ##  Parámetro <REVOCADA> acepta "True" o "False"
 @csrf_exempt
 def update_llave(request):
-    if request.method == "POST":
+    if request.method == "POST" and request.user.is_authenticated:
         body = utils.request_todict(request)
         llave = Llave().update(body)
         if llave:
@@ -162,7 +207,7 @@ def update_llave(request):
 ##  Con éxito la función retorna la instancia de registro creado, con error la función retorna mensaje de error.
 @csrf_exempt
 def create_registro(request):
-    if request.method == "POST":
+    if request.method == "POST" and request.user.is_authenticated:
         body = utils.request_todict(request)
         registro = Registro().create(body)
         if registro:
@@ -183,7 +228,7 @@ def create_registro(request):
 ##  Con éxito la función retorna una o varias instancias de el o los registros según solicitado, 
 ##  con error la función retorna mensaje de error.
 def read_registro(request):
-    if request.method == "GET":
+    if request.method == "GET" and request.user.is_authenticated:
         body = request.GET
         respuesta = Registro().read(body)
         if respuesta:

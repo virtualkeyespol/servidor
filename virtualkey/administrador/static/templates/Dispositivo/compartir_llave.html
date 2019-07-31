@@ -1,0 +1,21 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Compartir Llave de {{ DISPOSITIVO }}</h1>
+</div>
+<div class="container">
+  <form action="" method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="CORREO">Correo del usuario</label>
+      <input type="email" class="form-control" id="CORREO" name="CORREO" aria-describedby="emailHelp" placeholder="Ingrese correo">
+    </div>
+    <div class="form-group">
+      <label for="FECHA_INICIO">Fecha de inicio</label>
+      <input type="date" class="form-control" id="FECHA_INICIO" name="FECHA_INICIO" placeholder="Password">
+    </div>
+    <div class="form-group">
+      <label for="FECHA_EXPIRACION">Fecha de expiración</label>
+      <input type="date" class="form-control" id="FECHA_EXPIRACION" name="FECHA_EXPIRACION" placeholder="Password">
+    </div>
+    <button type="submit" class="btn btn-primary">Compartir</button>
+  </form>
+</div>

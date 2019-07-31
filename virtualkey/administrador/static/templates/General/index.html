@@ -5,7 +5,10 @@
   <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Virtual Key</a>
   <ul class="navbar-nav px-3">
     <li class="nav-item text-nowrap">
-      <a class="nav-link" href="#">Cerrar Sesión</a>
+      <form style="margin: 0px;" action="/logout" method="POST">
+        {% csrf_token %}
+        <button class="btn btn-light">Cerrar Sesión</button>
+      </form>
     </li>
   </ul>
 </nav>
@@ -34,13 +37,13 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link {{ CUENTA_ACTIVE }}" href="/cuenta">
               <span data-feather="users"></span>
               Mi cuenta
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link {{ REPORTES_ACTIVE }}" href="/reportes">
               <span data-feather="bar-chart-2"></span>
               Reportes
             </a>
@@ -60,8 +63,16 @@
         {% include 'Dispositivo/dispositivo.html' %}
       {% elif OPCION == "ver_dispositivo" %}
         {% include 'Dispositivo/ver_dispositivo.html' %}
+      {% elif OPCION == "compartir_llave" %}
+        {% include 'Dispositivo/compartir_llave.html' %}
       {% elif OPCION == "llaves" %}
         {% include 'Llave/llave.html' %}
+      {% elif OPCION == "cuenta" %}
+        {% include 'Cuenta/cuenta.html' %}
+        {% elif OPCION == "editar_cuenta" %}
+        {% include 'Cuenta/editar_cuenta.html' %}
+      {% elif OPCION == "reportes" %}
+        {% include 'Reporte/reporte.html' %}
       {% endif %}
     </main>
   </div>

@@ -1,0 +1,21 @@
+{% load static %}
+{% include 'General/header.html' %}
+<link rel="canonical" href="https://getbootstrap.com/docs/4.3/examples/sign-in/">
+<link rel="stylesheet" type="text/css" href="{% static 'css/General/signin.css' %}">
+<form class="form-signin" action="/login" method="POST">
+  {% csrf_token %}
+  <h1 class="h3 mb-3 font-weight-normal" style="text-align: center;">Iniciar Sesión</h1>
+  {% if ERROR %}
+    <small style="color: red; text-align: center;">{{ ERROR }}</small>
+  {% endif %}
+  <label for="USUARIO" class="sr-only">Correo</label>
+  <input type="email" id="USUARIO" name="USUARIO" class="form-control" placeholder="Correo" required autofocus>
+  <label for="CONTRASENA" class="sr-only">Contraseña</label>
+  <input type="password" id="CONTRASENA" name="CONTRASENA" class="form-control" placeholder="Contraseña" required>
+  <div class="checkbox mb-3">
+    <label>
+      <a href="/nuevousuario">¿No tienes cuenta? Crear una.</a>
+    </label>
+  </div>
+  <button class="btn btn-lg btn-primary btn-block" type="submit">Iniciar Sesión</button>
+</form>

@@ -1,6 +1,7 @@
 import json
 import math
 from django.forms.models import model_to_dict
+from rest.models import *
 
 ## TRANSFORMA REQUEST EN DICCIONARIO
 def request_todict(request):
@@ -10,6 +11,16 @@ def request_todict(request):
         return body
     except:
         return {}
+
+##  COMBINA REQUEST.USER.ID + REQUEST.POST EN NUEVO DICCIONARIO
+def combinar_request(key, value, request):
+    paquete = {}
+    paquete[key] = value
+    for key, value in request.items():
+        paquete[key] = value
+    return paquete
+
+
 
 ## TRANSFORMA INSTANCIAS DE UN MODELO EN DICCIONARIO
 def instancias_todic(instancias):
@@ -34,3 +45,16 @@ def empaquetar(objetos):
         paquete_padre.append(paquete_hijo)
         vuelta += 3
     return paquete_padre
+
+# def generarReportes(dispositivos):
+#     reportes_paquete = []
+#     for d in dispositivos:
+#         reportes = Registro.objetos.filter(dispositivo=d)
+#         reportes_paquete.append({
+#             "dispositivo" : d.nombre,
+#             "reportes" : reportes
+#             })
+#     return reportes_paquete 
+
+
+

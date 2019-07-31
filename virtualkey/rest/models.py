@@ -6,17 +6,65 @@ from django.forms.models import model_to_dict
 from rest import utils
 
 class Usuario(models.Model):
+    def create(self, body):
+        try:
+            correo = body.get("CORREO", None)
+            contrasena = body.get("CONTRASENA", None)
+            nombres = body.get("NOMBRES", None)
+            apellidos = body.get("APELLIDOS", None)
+
+            usuario = User.objects.create_user(correo, correo, contrasena)
+            usuario.first_name = nombres
+            usuario.last_name = apellidos
+            usuario.save()
+
+            ##  BUSCANDO LLAVES PENDIENTES Y AGREGANDOLAS AL USUARIO
+            llaves = Llave.objects.filter(correo=correo)
+            for llave in llaves:
+                llave.usuario = usuario
+                llave.save()
+
+            return usuario
+        except:
+            return None
+
     def getUser(self, usuario_id):
         try:
             usuario = User.objects.get(pk=usuario_id)
             return usuario
         except :
             return None
+    def findbyemail(self, email):
+        try:
+            usuario = User.objects.filter(email=email).first()
+            return usuario
+        except:
+            return None
+
+    def update(self, body):
+        usuario_id = body.get("USUARIO_ID", None)
+        nombres = body.get("NOMBRES", None)
+        apellidos = body.get("APELLIDOS", None)
+        correo = body.get("CORREO", None)
+        try:
+            usuario = User.objects.get(pk=usuario_id)
+            if nombres:
+                usuario.first_name = nombres
+            if apellidos:
+                usuario.last_name = apellidos
+            if correo: 
+                usuario.username = correo
+                usuario.email = correo
+            usuario.save()
+            return usuario
+        except:
+            return None
 
 
 class Llave(models.Model):
     dispositivo = models.ForeignKey('Dispositivo', on_delete=models.CASCADE)
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    correo = models.EmailField(default="")
     fecha_inicio = models.DateTimeField()
     fecha_expiracion = models.DateTimeField()
     revocada = models.BooleanField(default=False)
@@ -27,16 +75,17 @@ class Llave(models.Model):
     @classmethod
     def create(cls, body):
         dispositivo_id = body.get("DISPOSITIVO_ID", None)
-        usuario_id = body.get("USUARIO_ID", None)
+        correo = body.get("CORREO", None)
         fecha_inicio = body.get("FECHA_INICIO", None)
         fecha_expiracion = body.get("FECHA_EXPIRACION", None)
         try:
             dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
-            usuario = Usuario().getUser(usuario_id)
-            llave = cls(dispositivo=dispositivo, usuario=usuario, fecha_inicio=fecha_inicio, fecha_expiracion=fecha_expiracion)
+            usuario = Usuario().findbyemail(correo)
+            llave = cls(dispositivo=dispositivo, usuario=usuario, correo=correo, fecha_inicio=fecha_inicio, fecha_expiracion=fecha_expiracion)
             llave.save()
             return llave
-        except:
+        except Exception as e:
+            print(str(e))
             return None
 
     @property
@@ -138,6 +187,8 @@ class Dispositivo(models.Model):
                 dispositivo.nombre = nombre
             if estado:
                 dispositivo.estado = estado
+                ## CREAR REGISTRO
+
             dispositivo.save()
             return dispositivo
         except:
@@ -149,8 +200,7 @@ class Dispositivo(models.Model):
             dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
             dispositivo.delete()
             return True
-        except Exception as e:
-            print(str(e))
+        except:
             return False
 
     def cambiarEstado(self, id, estado):

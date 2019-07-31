@@ -1,0 +1,20 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Cuenta</h1>
+  <form action="/cuenta/editar" method="GET" style="margin:0px;">
+    <button class="btn btn-secondary">Editar</button>
+  </form>
+</div>
+<div class="container">
+  <div class="form-group">
+    <h4>Nombres y Apellidos</h4>
+    <h5>{{ USUARIO.first_name }} {{ USUARIO.last_name }}</h5>
+  </div>
+  <div class="form-group">
+    <h4>Correo</h4>
+    <h5>{{ USUARIO.email }}</h5>
+  </div>
+  <div class="form-group">
+    <h4>Última sesión</h4>
+    <h5>{{ USUARIO.last_login }}</h5>
+  </div>
+</div>
