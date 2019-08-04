@@ -48,6 +48,7 @@ def cerrar_sesion(request):
 #############################################################
 def panel_control(request):
     if request.user.is_authenticated:
+        generar_estadistica(request)
         paquete = {
             'OPCION' : 'panel_control',
             'PANEL_CONTROL_ACTIVE' : 'active'

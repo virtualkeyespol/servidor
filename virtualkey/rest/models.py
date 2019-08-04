@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -162,14 +163,13 @@ class Dispositivo(models.Model):
             return None
 
     def read(self, body):
-        dispositivo_id = body.get("DISPOSITIVO_ID", None)
-        usuario_id = body.get("USUARIO_ID", None)
+        dispositivo_id = body.GET.get("DISPOSITIVO_ID", None)
+        usuario = body.user
         try:
             if dispositivo_id:
                 dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
                 return model_to_dict(dispositivo)
-            elif usuario_id:
-                usuario = Usuario().getUser(usuario_id)
+            elif usuario:
                 dispositivos = Dispositivo.objects.filter(usuario=usuario)
                 return utils.instancias_todic(dispositivos)
             else:
@@ -254,3 +254,62 @@ class Registro(models.Model):
                 return None
         except:
             return None
+
+
+
+##########################################################################
+############                MODEL FUNCTIONS                   ############ 
+##########################################################################
+
+
+##GENERAR ESTADISTICA PARA PANEL DE CONTROL
+def generar_estadistica(request):
+    ##
+    ## ARREGLAR QUERIES DE BUSQUEDA SEGUN FECHAS
+    ##
+
+    ##  ENCONTRAR RANGOS DE INICIOS Y FINAL DE SEMANA
+    hoy = datetime.date.today()
+    tercero = hoy - datetime.timedelta(1)
+    segundo = hoy - datetime.timedelta(2)
+    primero = hoy - datetime.timedelta(3)
+    
+    
+
+    ##  BUSCAR REGISTROS QUE ENTREN EN EL RANGO
+    reportes_primero = Registro.objects.filter(usuario=request.user, fecha__gt=primero - datetime.timedelta(1), fecha__lte=primero)
+    reportes_segundo = Registro.objects.filter(usuario=request.user, fecha__gt=primero, fecha__lte=segundo)
+    reportes_tercero = Registro.objects.filter(usuario=request.user, fecha__gt=segundo, fecha__lte=tercero)
+    reportes_cuarto = Registro.objects.filter(usuario=request.user, fecha__gt=tercero, fecha__lte=hoy)
+
+    paquete = {}
+    dispositivos = Dispositivo.objects.filter(usuario=request.user)
+    for dispositivo in dispositivos:
+        if not dispositivo.nombre in paquete:
+            paquete[dispositivo.nombre] = [0,0,0,0]
+
+    for dispositivo in dispositivos:
+        for r in reportes_primero:
+            if r.dispositivo == dispositivo:
+                paquete[dispositivo.nombre][0] += 1
+        for r in reportes_segundo:
+            if r.dispositivo == dispositivo:
+                paquete[dispositivo.nombre][1] += 1
+        for r in reportes_tercero:
+            if r.dispositivo == dispositivo:
+                paquete[dispositivo.nombre][2] += 1
+        for r in reportes_cuarto:
+            if r.dispositivo == dispositivo:
+                paquete[dispositivo.nombre][3] += 1
+
+    print(Registro.objects.last().fecha, hoy)
+    print(Registro.objects.filter(fecha__gte=tercero, fecha__lte=hoy))
+    print(reportes_primero, reportes_segundo, reportes_tercero, reportes_cuarto)
+    print(paquete)
+
+
+
+
+
+
+

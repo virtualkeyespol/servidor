@@ -1,7 +1,6 @@
 import json
 import math
 from django.forms.models import model_to_dict
-from rest.models import *
 
 ## TRANSFORMA REQUEST EN DICCIONARIO
 def request_todict(request):
@@ -55,6 +54,18 @@ def empaquetar(objetos):
 #             "reportes" : reportes
 #             })
 #     return reportes_paquete 
+
+
+
+
+
+
+
+
+
+    
+
+
 
 
 

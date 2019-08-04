@@ -81,13 +81,12 @@ def create_dispositivo(request):
 
 ##  La función solo toma un parámetro a la vez (a tráves de GET):
 ##  1) Sí se envía el parámetro <DISPOSITIVO_ID> se retornará el dispositivo correspondiente a ese ID.
-##  2) Sí se envía el parámetro <USUARIO_ID> se retornará los dispositivos que pertenezcan a dicho usuario.
+##  2) Sí no se envía parámetro se retornará los dispositivos que pertenezcan al usuario autenticado.
 ##  Con éxito la función retorna una o varias instancias de dispositivo según solicitada, 
 ##  con error la función retorna mensaje de error.
 def read_dispositivo(request):
     if request.method == "GET" and request.user.is_authenticated:
-        body = request.GET
-        respuesta = Dispositivo().read(body)
+        respuesta = Dispositivo().read(request)
         if respuesta:
             return JsonResponse({
                 'STATUS' : 'OK',

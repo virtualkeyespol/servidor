@@ -35,6 +35,22 @@
         borderColor: '#007bff',
         borderWidth: 4,
         pointBackgroundColor: '#007bff'
+      },
+      {
+        data: [
+          15439,
+          11345,
+          38483,
+          21003,
+          20489,
+          22092,
+          16034
+        ],
+        lineTension: 0,
+        backgroundColor: 'transparent',
+        borderColor: '#aa7bbf',
+        borderWidth: 4,
+        pointBackgroundColor: '#aa7bbf'
       }]
     },
     options: {
