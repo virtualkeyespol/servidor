@@ -6,6 +6,7 @@ from django.forms.models import model_to_dict
 def request_todict(request):
     try: 
         body = request.body.decode('utf-8')
+        print(body)
         body = json.loads(body)
         return body
     except:

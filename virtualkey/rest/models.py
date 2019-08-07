@@ -1,4 +1,5 @@
 import datetime
+import secrets
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -6,6 +7,10 @@ from django.forms.models import model_to_dict
 
 from rest import utils
 
+
+#############################################################
+                    ## USUARIO
+#############################################################
 class Usuario(models.Model):
     def create(self, body):
         try:
@@ -62,10 +67,146 @@ class Usuario(models.Model):
             return None
 
 
+#############################################################
+                    ## SESION
+#############################################################
+class Sesion(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    token =  models.CharField(max_length=70)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def create(self, usuario):
+        s = Sesion()
+        s.usuario = usuario
+        s.token = secrets.token_hex(32)
+        s.save()
+        return s
+    def logout(self, token):
+        try:
+            s = Sesion.objects.get(token=token)
+            s.delete()
+            return  True
+        except:
+            return False
+    def get_sesion(self, usuario):
+        try:
+            s = Sesion.objects.get(usuario=usuario)
+            return s
+        except:
+            return None
+    def get_user(self, token):
+        try:
+            s = Sesion.objects.get(token=token)
+            return s.usuario
+        except:
+            return None
+
+    def is_autenticated(self, body):
+        try:
+            if body.method == "POST":
+                body = utils.request_todict(body)
+            else: 
+                body = body.GET
+            token = body.get("TOKEN", None)
+            Sesion.objects.get(token=token)
+            return token
+        except:
+            return None
+
+    def __str__ (self):
+        return self.usuario.username
+
+
+
+#############################################################
+                    ## DISPOSITIVO
+#############################################################
+class Dispositivo(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    modelo = models.CharField(max_length=50, default="")
+    numero_serie = models.CharField(max_length=10, default="")
+    nombre = models.CharField(max_length=100, null=True)
+    estado = models.BooleanField(default=False)
+
+    def __str__(self):
+        if self.nombre:
+            return self.nombre
+        else:
+            return self.modelo
+
+    @classmethod
+    def create(cls, body):
+        modelo = body.get("MODELO", None)
+        try:
+            dispositivo = cls(modelo=modelo, numero_serie=secrets.randbits(32))
+            dispositivo.save()
+            return dispositivo
+        except:
+            return None
+
+    def read(self, body):
+        dispositivo_id = body.GET.get("DISPOSITIVO_ID", None)
+        token = body.GET.get("TOKEN", None)
+        try:
+            if dispositivo_id:
+                dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
+                return model_to_dict(dispositivo)
+            else:
+                usuario = Sesion().get_user(token)
+                dispositivos = Dispositivo.objects.filter(usuario=usuario)
+                return utils.instancias_todic(dispositivos)
+        except:
+            return None
+
+    def update(self, body):
+        numero_serie = body.get("NUMERO_SERIE", None)
+        token = body.get("TOKEN", None)
+        nombre = body.get("NOMBRE", None)
+        estado = body.get("ESTADO", None)
+        try:
+            dispositivo = Dispositivo.objects.get(numero_serie=numero_serie)
+            if not dispositivo.usuario:
+                dispositivo.usuario = Sesion().get_user(token)
+            if nombre:
+                dispositivo.nombre = nombre
+            if estado:
+                dispositivo.estado = estado
+
+            dispositivo.save()
+            return dispositivo
+        except:
+            return None
+
+    def delete_(self, body):
+        numero_serie = body.get("NUMERO_SERIE", None)
+        try:
+            dispositivo = Dispositivo.objects.get(numero_serie=numero_serie)
+            dispositivo.delete()
+            return True
+        except:
+            return False
+
+    def cambiarEstado(self, id, estado):
+        dispositivo = Dispositivo.objects.get(pk=id)
+        dispositivo.estado = estado
+        dispositivo.save()
+        return dispositivo
+
+    def validar_numero_serie(self, numero_serie):
+        if len(Dispositivo.objects.filter(numero_serie=numero_serie)) == 1:
+            return True
+        return False
+
+
+
+#############################################################
+                    ## LLAVE
+#############################################################
 class Llave(models.Model):
     dispositivo = models.ForeignKey('Dispositivo', on_delete=models.CASCADE)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     correo = models.EmailField(default="")
+    codigo = models.CharField(max_length=20, default="")
     fecha_inicio = models.DateTimeField()
     fecha_expiracion = models.DateTimeField()
     revocada = models.BooleanField(default=False)
@@ -75,18 +216,21 @@ class Llave(models.Model):
 
     @classmethod
     def create(cls, body):
+        token = body.get("TOKEN", None)
+        numero_serie = body.get("NUMERO_SERIE", None)
         dispositivo_id = body.get("DISPOSITIVO_ID", None)
         correo = body.get("CORREO", None)
         fecha_inicio = body.get("FECHA_INICIO", None)
         fecha_expiracion = body.get("FECHA_EXPIRACION", None)
         try:
-            dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
+            dispositivo = Dispositivo.objects.filter(numero_serie=numero_serie).first()
+            if not dispositivo:
+                dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
             usuario = Usuario().findbyemail(correo)
-            llave = cls(dispositivo=dispositivo, usuario=usuario, correo=correo, fecha_inicio=fecha_inicio, fecha_expiracion=fecha_expiracion)
+            llave = cls(dispositivo=dispositivo, usuario=usuario, correo=correo, codigo=secrets.token_urlsafe(15), fecha_inicio=fecha_inicio, fecha_expiracion=fecha_expiracion)
             llave.save()
             return llave
-        except Exception as e:
-            print(str(e))
+        except:
             return None
 
     @property
@@ -100,23 +244,26 @@ class Llave(models.Model):
         return "Activa"
 
     def read(self, body):
+        token = body.get("TOKEN", None)
         dispositivo_id = body.get("DISPOSITIVO_ID", None)
-        usuario_id = body.get("USUARIO_ID", None)
         llave_id = body.get("LLAVE_ID", None)
+        numero_serie = body.get("NUMERO_SERIE", None)
         try:
             if dispositivo_id:    
                 dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
                 llaves = Llave.objects.filter(dispositivo=dispositivo)
                 return utils.instancias_todic(llaves)
-            elif usuario_id:
-                usuario = Usuario().getUser(usuario_id)
-                llaves = Llave.objects.filter(usuario=usuario)
-                return utils.instancias_todic(llaves)
             elif llave_id:
                 llave = Llave.objects.get(pk=llave_id)
                 return model_to_dict(llave)
+            elif numero_serie:
+                dispositivo = Dispositivo.objects.get(numero_serie=numero_serie)
+                llaves = Llave.objects.filter(dispositivo=dispositivo)
+                return utils.instancias_todic(llaves)
             else:
-                return None
+                usuario = Sesion().get_user(token)
+                llaves = Llave.objects.filter(usuario=usuario)
+                return utils.instancias_todic(llaves)
         except:
             return None
 
@@ -142,73 +289,10 @@ class Llave(models.Model):
         return llave
 
 
-class Dispositivo(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    nombre = models.CharField(max_length=100)
-    estado = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.nombre
-
-    @classmethod
-    def create(cls, body):
-        usuario_id = body.get("USUARIO_ID", None)
-        nombre = body.get("NOMBRE", None)
-        try:
-            usuario = Usuario().getUser(usuario_id)
-            dispositivo = cls(usuario=usuario, nombre=nombre)
-            dispositivo.save()
-            return dispositivo
-        except:
-            return None
-
-    def read(self, body):
-        dispositivo_id = body.GET.get("DISPOSITIVO_ID", None)
-        usuario = body.user
-        try:
-            if dispositivo_id:
-                dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
-                return model_to_dict(dispositivo)
-            elif usuario:
-                dispositivos = Dispositivo.objects.filter(usuario=usuario)
-                return utils.instancias_todic(dispositivos)
-            else:
-                return None
-        except:
-            return None
-
-    def update(self, body):
-        dispositivo_id = body.get("DISPOSITIVO_ID", None)
-        nombre = body.get("NOMBRE", None)
-        estado = body.get("ESTADO", None)
-        try:
-            dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
-            if nombre:
-                dispositivo.nombre = nombre
-            if estado:
-                dispositivo.estado = estado
-                ## CREAR REGISTRO
-
-            dispositivo.save()
-            return dispositivo
-        except:
-            return None
-
-    def delete_(self, body):
-        dispositivo_id = body.get("DISPOSITIVO_ID", None)
-        try:
-            dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
-            dispositivo.delete()
-            return True
-        except:
-            return False
-
-    def cambiarEstado(self, id, estado):
-        dispositivo = Dispositivo.objects.get(pk=id)
-        dispositivo.estado = estado
-        dispositivo.save()
-        return dispositivo
-
+#############################################################
+                    ## REGISTRO
+#############################################################
 class Registro(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     dispositivo = models.ForeignKey('Dispositivo', on_delete=models.CASCADE)
@@ -233,7 +317,7 @@ class Registro(models.Model):
         registro_id = body.get("REGISTRO_ID", None)
         llave_id = body.get("LLAVE_ID", None)
         dispositivo_id = body.get("DISPOSITIVO_ID", None)
-        usuario_id = body.get("USUARIO_ID", None)
+        token = body.get("TOKEN", None)
         try:
             if registro_id:
                 registro = Registro.objects.get(pk=registro_id)
@@ -246,12 +330,10 @@ class Registro(models.Model):
                 dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
                 registros = Registro.objects.filter(dispositivo=dispositivo)
                 return utils.instancias_todic(registros)
-            elif usuario_id:
-                usuario = Usuario().getUser(usuario_id)
+            else:
+                usuario = Sesion().get_user(token)
                 registros = Registro.objects.filter(usuario=usuario)
                 return utils.instancias_todic(registros)
-            else:
-                return None
         except:
             return None
 
@@ -301,11 +383,6 @@ def generar_estadistica(request):
         for r in reportes_cuarto:
             if r.dispositivo == dispositivo:
                 paquete[dispositivo.nombre][3] += 1
-
-    print(Registro.objects.last().fecha, hoy)
-    print(Registro.objects.filter(fecha__gte=tercero, fecha__lte=hoy))
-    print(reportes_primero, reportes_segundo, reportes_tercero, reportes_cuarto)
-    print(paquete)
 
 
 

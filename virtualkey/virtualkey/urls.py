@@ -38,6 +38,7 @@ urlpatterns = [
 
     ##	MIS DISPOSITIVOS
     path('dispositivos',                            views.dispositivos,                     name='dispositivos'),
+    path('dispositivos/crear',                      views.crear_dispositivo,                name='crear_dispositivo'),
     path('dispositivos/ver/<str:id>',               views.ver_dispositivo,                  name='ver_dispositivo'),
     path('dispositivos/cambiarEstado',              views.cambiarEstadoDispositivo,         name='cambiarEstadoDispositivo'),
     path('dispositivos/compartir/<str:id>',         views.compartir_acceso,                 name='compartir_acceso'),
@@ -53,6 +54,10 @@ urlpatterns = [
     ##  REPORTES
     path('reportes',                                views.reportes,                         name='reportes'),
 
+    ##  APARTADO // REGISTRO DE DISPOSITIVOS EN EL SISTEMA
+    path('registro_dispositivo',                    views.registro_dispositivo,             name='registro_dispositivo'),
+    
+
     #############################################################
                         ## REST API 
     #############################################################
@@ -61,7 +66,6 @@ urlpatterns = [
     path('rest/logout',                             rest_views.rest_cerrar_sesion,          name='rest_cerrar_sesion'),
 
     ##  DISPOSITIVO
-    path('rest/dispositivo/create',                 rest_views.create_dispositivo,          name='create_dispositivo'),
     path('rest/dispositivo/read',                   rest_views.read_dispositivo,            name='read_dispositivo'),
     path('rest/dispositivo/update',                 rest_views.update_dispositivo,          name='update_dispositivo'),
     path('rest/dispositivo/delete',                 rest_views.delete_dispositivo,          name='delete_dispositivo'),
@@ -70,12 +74,14 @@ urlpatterns = [
     path('rest/llave/create',                       rest_views.create_llave,                name='create_llave'),
     path('rest/llave/read',                         rest_views.read_llave,                  name='read_llave'),
     path('rest/llave/update',                       rest_views.update_llave,                name='update_llave'),
+    ##      **PARA DISPOSITIVO**
+    path('rest/llave/read_llaves_dispositivo',      rest_views.read_llaves_dispositivo,     name='read_llaves_dispositivo'),
+    path('rest/llave/verificar_llave',              rest_views.verificar_llave,             name='verificar_llave'),
+    
 
     ## REGISTRO
     path('rest/registro/create',                    rest_views.create_registro,             name='create_registro'),
     path('rest/registro/read',                      rest_views.read_registro,               name='read_registro'),
-
-
 
 ]
 

@@ -1,0 +1,14 @@
+{
+	"H2chJGn0LrEtGdjJOmMX": {
+		"fecha_expiracion": "2019-08-31T00:00:00Z", 
+		"fecha_inicio": "2019-08-01T00:00:00Z"
+	}, 
+	"iT8Z85VvxMxzVwhgkkgI": {
+		"fecha_expiracion": "2019-09-30T00:00:00Z", 
+		"fecha_inicio": "2019-07-01T00:00:00Z"
+	}, 
+	"CeNg1q3ygj30fdIZoBqF": {
+		"fecha_expiracion": "2019-09-28T00:00:00Z", 
+		"fecha_inicio": "2019-08-02T00:00:00Z"
+	}
+}

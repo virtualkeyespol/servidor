@@ -17,8 +17,8 @@ from rest.models import *
                     ## AUTENTICACION
 #############################################################
 
-##  La función toma dos parámetros <USUARIO> y <CONTRASENA> (a través de POST)
-##  Con éxito la función retorna mensaje de inició de sesión, con error la función retorna mensaje de error.
+##  Parámetros Obligatorios: <USUARIO> y <CONTRASENA> (a través de POST)
+##  Con éxito la función retorna el token de sesión, con error la función retorna mensaje de error.
 @csrf_exempt
 def rest_iniciar_sesion(request):
     if request.method == "POST":
@@ -27,10 +27,10 @@ def rest_iniciar_sesion(request):
         password = body.get("CONTRASENA", None)
         usuario = authenticate(request, username=username, password=password)
         if usuario is not None:
-            login(request, usuario)
+            sesion = Sesion().create(usuario)
             return JsonResponse({
                 'STATUS' : 'OK',
-                'RESPUESTA' : usuario.id
+                'RESPUESTA' : sesion.token
             })
         else:
             return JsonResponse({
@@ -42,12 +42,13 @@ def rest_iniciar_sesion(request):
         'RESPUESTA' : 'Error de solicitud'
     })
 
-##  La función toma no toma ningún paráremtro (a través de POST)
+##  Parámetro Obligatorio: <TOKEN> (a través de POST)
 ##  Con éxito la función retorna mensaje de cierre de sesión, con error la función retorna mensaje de error.
 @csrf_exempt
 def rest_cerrar_sesion(request):
-    if request.method == "POST" and request.user.is_authenticated:
-        logout(request)
+    token = Sesion().is_autenticated(request)
+    if request.method == "POST" and token:
+        Sesion().logout(token)
         return JsonResponse({
             'STATUS' : 'OK',
             'RESPUESTA' : 'Sesión cerrada'
@@ -61,31 +62,15 @@ def rest_cerrar_sesion(request):
                     ## DISPOSITIVOS
 #############################################################
 
-##  La función toma dos parámetros <USUARIO_ID> y <NOMBRE> (a tráves de POST)
-##  Con éxito la función retorna la instancia de dispositivo creada, con error la función retorna mensaje de error.
-@csrf_exempt
-def create_dispositivo(request):
-    if request.method == "POST" and request.user.is_authenticated:
-        body = utils.request_todict(request)
-        dispositivo = Dispositivo().create(body)
-        if dispositivo:
-            return JsonResponse({
-                'STATUS' : 'OK',
-                'RESPUESTA' : model_to_dict(dispositivo)
-            })  
-    return JsonResponse({
-        'STATUS' : 'ERROR',
-        'RESPUESTA' : 'Error de solicitud'
-    })
-
-
-##  La función solo toma un parámetro a la vez (a tráves de GET):
-##  1) Sí se envía el parámetro <DISPOSITIVO_ID> se retornará el dispositivo correspondiente a ese ID.
-##  2) Sí no se envía parámetro se retornará los dispositivos que pertenezcan al usuario autenticado.
+##  Parámetro Obligatorio: <TOKEN> (a tráves de GET):
+##  Parámetros Opcionales:
+##  1) <DISPOSITIVO_ID> se retornará el dispositivo correspondiente a ese ID.
+##  Sí no se envía parámetro se retornará los dispositivos que pertenezcan al usuario autenticado.
 ##  Con éxito la función retorna una o varias instancias de dispositivo según solicitada, 
 ##  con error la función retorna mensaje de error.
 def read_dispositivo(request):
-    if request.method == "GET" and request.user.is_authenticated:
+    token = Sesion().is_autenticated(request)
+    if request.method == "GET" and token:
         respuesta = Dispositivo().read(request)
         if respuesta:
             return JsonResponse({
@@ -97,13 +82,14 @@ def read_dispositivo(request):
         'RESPUESTA' : 'Error de solicitud'
     })
 
-##  La función primordialmente necesita el parámetro <DISPOSITIVO_ID> (a tráves de POST)
-##  la función puede aceptar a la vez los parámetros <NOMBRE> y <ESTADO>.
+##  Parámetros Obligatorios: <TOKEN> y <NUMERO_SERIE> (a tráves de POST)
+##  Paramétros opcionales: <NOMBRE> y <ESTADO>.
 ##  Con éxito la función retorna la instacia de dispositivo actualizada, con error la función retorna mensaje de error.
 ##  Parámetro <ESTADO> acepta "True" o "False"
 @csrf_exempt
 def update_dispositivo(request):
-    if request.method == "POST" and request.user.is_authenticated:
+    token = Sesion().is_autenticated(request)
+    if request.method == "POST" and token:
         body = utils.request_todict(request)
         dispositivo = Dispositivo().update(body)
         if dispositivo:
@@ -116,11 +102,12 @@ def update_dispositivo(request):
         'RESPUESTA' : 'Error de solicitud'
     })
 
-##  La función toma como único parámetro <DISPOSITIVO_ID> (a tráves de POST)
+##  Parámetros Obligatorios: <TOKEN> y <NUMERO_SERIE> (a tráves de POST)
 ##  Con éxito la función retorna mensaje de éxito, con error la función retorna mensaje de error.
 @csrf_exempt
 def delete_dispositivo(request):
-    if request.method == "POST" and request.user.is_authenticated:
+    token = Sesion().is_autenticated(request)
+    if request.method == "POST" and token:
         body = utils.request_todict(request)
         respuesta = Dispositivo().delete_(body)
         if respuesta:
@@ -138,12 +125,13 @@ def delete_dispositivo(request):
                     ## LLAVES
 #############################################################
 
-##  La función toma cuatro parámetros <USUARIO_ID>, <DISPOSITIVO_ID>, <FECHA_INICIO> y <FECHA_EXPIRACION> (a tráves de POST)
+##  Parámetros Obligatorios: <TOKEN>, <CORREO>, <NUMERO_SERIE>, <FECHA_INICIO> y <FECHA_EXPIRACION> (a tráves de POST)
 ##  Con éxito la función retorna la instancia de llave creada, con error la función retorna mensaje de error.
 ##  Parámetro <FECHA_INICIO> y <FECHA_EXPIRACION> aceptan formato ej. "2019-07-23T05:40:27Z"
 @csrf_exempt
 def create_llave(request):
-    if request.method == "POST" and request.user.is_authenticated:
+    token = Sesion().is_autenticated(request)
+    if request.method == "POST" and token:
         body = utils.request_todict(request)
         llave = Llave().create(body)
         if llave:
@@ -156,14 +144,17 @@ def create_llave(request):
         'RESPUESTA' : 'Error de solicitud'
     })
 
-##  La función solo toma un parámetro a la vez (a tráves de GET):
+##  Parámetro Obligatorio: <TOKEN> (a tráves de GET)
+##  Parámetros Opcionales:
 ##  1) Sí se envía el parámetro <DISPOSITIVO_ID> se retornará las llaves correspondiente a ese dispositivo.
-##  2) Sí se envía el parámetro <USUARIO_ID> se retornará las llaves que pertenezcan a dicho usuario.
+##  2) Sí se envía el parámetro <NUMERO_SERIE> se retornará las llaves que pertenezcan a dicho dispositivo.
 ##  3) Sí se envía el parámetro <LLAVE_ID> se retornará la llave correspondiente a ese ID.
+##  Sí no se envía parámetro se retornará las llaves correspondiente al usuario autenticados.
 ##  Con éxito la función retorna una o varias instancias de la o las llaves según solicitada, 
 ##  con error la función retorna mensaje de error.
 def read_llave(request):
-    if request.method == "GET" and request.user.is_authenticated:
+    token = Sesion().is_autenticated(request)
+    if request.method == "GET" and token:
         body = request.GET
         respuesta = Llave().read(body)
         if respuesta:
@@ -176,14 +167,15 @@ def read_llave(request):
         'RESPUESTA' : 'Error de solicitud'
     })
 
-##  La función primordialmente necesita el parámetro <LLAVE_ID> (a tráves de POST)
-##  la función puede aceptar a la vez los parámetros <FECHA_EXPIRACION> y <REVOCADA>.
+##  Parámetro Obligatorio:  <TOKEN> y <LLAVE_ID> (a tráves de POST)
+##  Parámetros Opcionales <FECHA_EXPIRACION> y <REVOCADA>.
 ##  Con éxito la función retorna la instacia de dispositivo actualizada, con error la función retorna mensaje de error.
 ##  Parámetro <FECHA_INICIO> y <FECHA_EXPIRACION> aceptan formato ej. "2019-07-23T05:40:27Z"
 ##  Parámetro <REVOCADA> acepta "True" o "False"
 @csrf_exempt
 def update_llave(request):
-    if request.method == "POST" and request.user.is_authenticated:
+    token = Sesion().is_autenticated(request)
+    if request.method == "POST" and token:
         body = utils.request_todict(request)
         llave = Llave().update(body)
         if llave:
@@ -196,17 +188,60 @@ def update_llave(request):
         'RESPUESTA' : 'Error de solicitud'
     })
 
+##  ** PARA DISPOSITIVO **
+##  La función toma un unico parámetro <NUMERO_SERIE> (a tráves de GET)
+##  Con éxito la función retorna las llaves asociadas al dispositivo ligado al número de serie
+##  Con error la función retorna mensaje de error.
+def read_llaves_dispositivo(request):
+    token = Sesion().is_autenticated(request)
+    if request.method == "GET" and token:
+        body = request.GET
+        numero_serie = body.get("NUMERO_SERIE", None)
+        if Dispositivo().validar_numero_serie(numero_serie):
+            respuesta = Llave().read(body)
+            if not respuesta==None:
+                return JsonResponse({
+                    'STATUS' : 'OK',
+                    'RESPUESTA' : respuesta
+                })
+    return JsonResponse({
+        'STATUS' : 'ERROR',
+        'RESPUESTA' : 'Error de solicitud'
+    })
 
+def verificar_llave(request):
+    token = Sesion().is_autenticated(request)
+    if request.method == "GET" and token:
+        body = request.GET
+        codigo = body.get("CODIGO", None)
+        llave = Llave.objects.filter(codigo=codigo)
+        if len(llave == 1):
+            llave = llave.first()
+            return JsonResponse({
+                'STATUS' : 'OK',
+                'RESPUESTA' : model_to_dict(llave)
+            })
+        else:
+            return JsonResponse({
+                'STATUS' : 'OK',
+                'RESPUESTA' : 'INVALIDA'
+            })
+            
+    return JsonResponse({
+        'STATUS' : 'ERROR',
+        'RESPUESTA' : 'Error de solicitud'
+    })
 
 #############################################################
                     ## REGISTROS
 #############################################################
 
-##  La función toma un parámetro <LLAVE_ID> (a tráves de POST)
+##  Parámetro Obligatorio:  <TOKEN> y <LLAVE_ID> (a tráves de POST)
 ##  Con éxito la función retorna la instancia de registro creado, con error la función retorna mensaje de error.
 @csrf_exempt
 def create_registro(request):
-    if request.method == "POST" and request.user.is_authenticated:
+    token = Sesion().is_autenticated(request)
+    if request.method == "POST" and token:
         body = utils.request_todict(request)
         registro = Registro().create(body)
         if registro:
@@ -219,15 +254,17 @@ def create_registro(request):
         'RESPUESTA' : 'Error de solicitud'
     })
 
-##  La función solo toma un parámetro a la vez (a tráves de GET):
+##  Parámetro Obligatorio: <TOKEN> (a tráves de GET):
+##  Parámetros Opcionales:
 ##  1) Sí se envía el parámetro <DISPOSITIVO_ID> se retornará los registros correspondientes a ese dispositivo.
-##  2) Sí se envía el parámetro <USUARIO_ID> se retornará los registros correspondientes a ese usuario.
-##  3) Sí se envía el parámetro <LLAVE_ID> se retornará los registros correspondientes a esa llave.
-##  4) Sí se envía el parámetro <REGISTRO_ID> se retornará el registro correspondiente a ese ID.
+##  2) Sí se envía el parámetro <LLAVE_ID> se retornará los registros correspondientes a esa llave.
+##  3) Sí se envía el parámetro <REGISTRO_ID> se retornará el registro correspondiente a ese ID.
+##  Sí no se envía ningún parametro se retornará los registros correspodientes al usuario autenticado.
 ##  Con éxito la función retorna una o varias instancias de el o los registros según solicitado, 
 ##  con error la función retorna mensaje de error.
 def read_registro(request):
-    if request.method == "GET" and request.user.is_authenticated:
+    token = Sesion().is_autenticated(request)
+    if request.method == "GET" and token:
         body = request.GET
         respuesta = Registro().read(body)
         if respuesta:

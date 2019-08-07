@@ -1,0 +1,23 @@
+{% load static %}
+{% include 'General/header.html' %}
+{% if NUMERO_SERIE %}
+  <h1 style="text-align: center">Dispositivo registrado con éxito</h1>
+  <h3 style="text-align: center">Numero de serie: <b>{{ NUMERO_SERIE }}</b></h3>
+  <form action="" method="GET" style="text-align: center; margin-top: 30px;">
+    <button type="submit" class="btn btn-primary">Registrar más</button>
+  </form>
+{% else %}
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2" style="margin-left: 20px;">Registro de Dispositivo</h1>
+  </div>
+  <div class="container">
+    <form action="" method="POST">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="MODELO">Modelo</label>
+        <input type="text" class="form-control" id="MODELO" name="MODELO" placeholder="Ingrese modelo">
+      </div>
+      <button type="submit" class="btn btn-primary">Registrar</button>
+    </form>
+  </div>
+{% endif %}

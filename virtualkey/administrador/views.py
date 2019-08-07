@@ -72,6 +72,21 @@ def dispositivos(request):
         }
         return render(request, "General/index.html", paquete)
     return redirect('iniciar_sesion')
+
+def crear_dispositivo(request):
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            body = utils.combinar_request("USUARIO_ID", request.user.id, request.POST)
+            dispositivo = Dispositivo().update(body)
+            if dispositivo:
+                return redirect('dispositivos')
+        paquete = {
+            'OPCION' : 'crear_dispositivo',
+            'DISPOSITIVOS_ACTIVE' : 'active'
+        }
+        return render(request, "General/index.html", paquete)
+    return redirect('iniciar_sesion')
+
 def ver_dispositivo(request, id):
     if request.user.is_authenticated:
         dispositivo = Dispositivo.objects.get(pk=id)                                        ## BUSCAR DISPOSITIVO
@@ -187,4 +202,20 @@ def reportes(request):
         }
         return render(request, "General/index.html", paquete)
     return redirect('iniciar_sesion')
+
+
+
+#############################################################
+    ## APARTADO // REGISTRO DE DISPOSITIVO AL SISTEMA
+#############################################################
+def registro_dispositivo(request):
+    paquete = {}
+    if request.method == "POST":
+        dispositivo = Dispositivo().create(request.POST)
+        if dispositivo:
+            paquete["NUMERO_SERIE"] = dispositivo.numero_serie
+    return render(request, "Apartado/registro_dispositivo.html", paquete)
+
+
+
         

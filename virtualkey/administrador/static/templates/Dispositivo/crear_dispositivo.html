@@ -1,0 +1,17 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Agregar Dispositivo</h1>
+</div>
+<div class="container">
+  <form action="" method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="NUMERO_SERIE">Numero de serie</label>
+      <input type="number" class="form-control" id="NUMERO_SERIE" name="NUMERO_SERIE" placeholder="Ingrese numero de serie">
+    </div>
+    <div class="form-group">
+      <label for="NOMBRE">Nombre</label>
+      <input type="text" class="form-control" id="NOMBRE" name="NOMBRE" placeholder="Nombre del dispositivo">
+    </div>
+    <button type="submit" class="btn btn-primary">Agregar</button>
+  </form>
+</div>

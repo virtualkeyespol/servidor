@@ -5,3 +5,4 @@ from rest.models import *
 admin.site.register(Llave)
 admin.site.register(Dispositivo)
 admin.site.register(Registro)
+admin.site.register(Sesion)
