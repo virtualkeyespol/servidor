@@ -1,5 +1,7 @@
 import datetime
 import secrets
+import random
+from datetime import datetime, timedelta
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -150,23 +152,46 @@ class Dispositivo(models.Model):
         try:
             if dispositivo_id:
                 dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
-                return model_to_dict(dispositivo)
+                ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
+                dispositivo = model_to_dict(dispositivo)
+                usuario = model_to_dict(Usuario().getUser(dispositivo["usuario"]))
+                dispositivo["usuario"] = usuario
+                return dispositivo
             else:
                 usuario = Sesion().get_user(token)
                 dispositivos = Dispositivo.objects.filter(usuario=usuario)
-                return utils.instancias_todic(dispositivos)
-        except:
+                dispositivos = utils.instancias_todic(dispositivos)
+                ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
+                for i in range(0, len(dispositivos)):
+                    usuario = model_to_dict(Usuario().getUser(dispositivos[i]["usuario"]))
+                    dispositivos[i]["usuario"] = usuario
+                return dispositivos
+        except Exception as e:
+            print(str(e))
             return None
 
     def update(self, body):
         numero_serie = body.get("NUMERO_SERIE", None)
         token = body.get("TOKEN", None)
+        usuario_id = body.get("USUARIO_ID", None)
         nombre = body.get("NOMBRE", None)
         estado = body.get("ESTADO", None)
         try:
             dispositivo = Dispositivo.objects.get(numero_serie=numero_serie)
             if not dispositivo.usuario:
-                dispositivo.usuario = Sesion().get_user(token)
+                usuario = Sesion().get_user(token)
+                if not usuario:
+                    usuario = Usuario().getUser(usuario_id)
+                dispositivo.usuario = usuario
+
+                ## CREANDO LLAVE MASTER
+                llave = Llave()
+                llave.usuario = usuario
+                llave.dispositivo = dispositivo
+                llave.correo = usuario.username
+                llave.codigo = secrets.token_urlsafe(15)
+                llave.es_dueno = True
+                llave.save()
             if nombre:
                 dispositivo.nombre = nombre
             if estado:
@@ -174,7 +199,8 @@ class Dispositivo(models.Model):
 
             dispositivo.save()
             return dispositivo
-        except:
+        except Exception as e:
+            print(str(e))
             return None
 
     def delete_(self, body):
@@ -207,9 +233,11 @@ class Llave(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     correo = models.EmailField(default="")
     codigo = models.CharField(max_length=20, default="")
-    fecha_inicio = models.DateTimeField()
-    fecha_expiracion = models.DateTimeField()
+    fecha_inicio = models.DateTimeField(null=True)
+    fecha_expiracion = models.DateTimeField(null=True)
     revocada = models.BooleanField(default=False)
+    es_multiuso = models.BooleanField(default=True)
+    es_dueno = models.BooleanField(default=False)
 
     def __str__(self):
         return "Llave de: " + self.dispositivo.nombre
@@ -222,12 +250,17 @@ class Llave(models.Model):
         correo = body.get("CORREO", None)
         fecha_inicio = body.get("FECHA_INICIO", None)
         fecha_expiracion = body.get("FECHA_EXPIRACION", None)
+        es_multiuso =  body.get("MULTIUSO", None)
         try:
             dispositivo = Dispositivo.objects.filter(numero_serie=numero_serie).first()
             if not dispositivo:
                 dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
             usuario = Usuario().findbyemail(correo)
             llave = cls(dispositivo=dispositivo, usuario=usuario, correo=correo, codigo=secrets.token_urlsafe(15), fecha_inicio=fecha_inicio, fecha_expiracion=fecha_expiracion)
+            if es_multiuso == "on":
+                llave.es_multiuso = False
+            if es_dueno == True:
+                llave.es_dueno = True 
             llave.save()
             return llave
         except:
@@ -252,18 +285,45 @@ class Llave(models.Model):
             if dispositivo_id:    
                 dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
                 llaves = Llave.objects.filter(dispositivo=dispositivo)
-                return utils.instancias_todic(llaves)
+                llaves = utils.instancias_todic(llaves)
+                ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
+                for i in range(0, len(llaves)):
+                    usuario = model_to_dict(Usuario().getUser(llaves[i] ["usuario"]))
+                    dispositivo = model_to_dict(Dispositivo.objects.get(pk=llaves[i] ["dispositivo"]))
+                    llaves[i]["usuario"] = usuario
+                    llaves[i]["dispositivo"] = dispositivo
+                return llaves
             elif llave_id:
                 llave = Llave.objects.get(pk=llave_id)
-                return model_to_dict(llave)
+                ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
+                llave = model_to_dict(llave)
+                usuario = model_to_dict(Usuario().getUser(llave["usuario"]))
+                dispositivo = model_to_dict(Dispositivo.objects.get(pk=llave["dispositivo"]))
+                llave["usuario"] = usuario
+                llave["dispositivo"] = dispositivo
+                return llave
             elif numero_serie:
                 dispositivo = Dispositivo.objects.get(numero_serie=numero_serie)
                 llaves = Llave.objects.filter(dispositivo=dispositivo)
-                return utils.instancias_todic(llaves)
+                llaves = utils.instancias_todic(llaves)
+                ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
+                for i in range(0, len(llaves)):
+                    usuario = model_to_dict(Usuario().getUser(llaves[i]["usuario"]))
+                    dispositivo = model_to_dict(Dispositivo.objects.get(pk=llaves[i]["dispositivo"]))
+                    llaves[i]["usuario"] = usuario
+                    llaves[i]["dispositivo"] = dispositivo
+                return llaves
             else:
                 usuario = Sesion().get_user(token)
                 llaves = Llave.objects.filter(usuario=usuario)
-                return utils.instancias_todic(llaves)
+                llaves = utils.instancias_todic(llaves)
+                ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
+                for i in range(0, len(llaves)):
+                    usuario = model_to_dict(Usuario().getUser(llaves[i]["usuario"]))
+                    dispositivo = model_to_dict(Dispositivo.objects.get(pk=llaves[i]["dispositivo"]))
+                    llaves[i]["usuario"] = usuario
+                    llaves[i]["dispositivo"] = dispositivo
+                return llaves
         except:
             return None
 
@@ -321,19 +381,46 @@ class Registro(models.Model):
         try:
             if registro_id:
                 registro = Registro.objects.get(pk=registro_id)
-                return model_to_dict(registro)
+                registro = model_to_dict(registro)
+                ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
+                usuario = model_to_dict(Usuario().getUser(registro["usuario"]))
+                dispositivo = model_to_dict(Dispositivo.objects.get(pk=registro["dispositivo"]))
+                registro["usuario"] = usuario
+                registro["dispositivo"] = dispositivo
+                return registro
             elif llave_id:
                 llave = Llave.objects.get(pk=llave_id)
                 registros = Registro.objects.filter(llave=llave)
-                return utils.instancias_todic(registros)
+                registros = utils.instancias_todic(registros)
+                ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
+                for i in range(0, len(registros)):
+                    usuario = model_to_dict(Usuario().getUser(registros[i]["usuario"]))
+                    dispositivo = model_to_dict(Dispositivo.objects.get(pk=registros[i]["dispositivo"]))
+                    registros[i]["usuario"] = usuario
+                    registros[i]["dispositivo"] = dispositivo
+                return registros
             elif dispositivo_id:
                 dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
                 registros = Registro.objects.filter(dispositivo=dispositivo)
-                return utils.instancias_todic(registros)
+                registros = utils.instancias_todic(registros)
+                ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
+                for i in range(0, len(registros)):
+                    usuario = model_to_dict(Usuario().getUser(registros[i]["usuario"]))
+                    dispositivo = model_to_dict(Dispositivo.objects.get(pk=registros[i]["dispositivo"]))
+                    registros[i]["usuario"] = usuario
+                    registros[i]["dispositivo"] = dispositivo
+                return registros
             else:
                 usuario = Sesion().get_user(token)
                 registros = Registro.objects.filter(usuario=usuario)
-                return utils.instancias_todic(registros)
+                registros = utils.instancias_todic(registros)
+                ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
+                for i in range(0, len(registros)):
+                    usuario = model_to_dict(Usuario().getUser(registros[i]["usuario"]))
+                    dispositivo = model_to_dict(Dispositivo.objects.get(pk=registros[i]["dispositivo"]))
+                    registros[i]["usuario"] = usuario
+                    registros[i]["dispositivo"] = dispositivo
+                return registros
         except:
             return None
 
@@ -351,41 +438,52 @@ def generar_estadistica(request):
     ##
 
     ##  ENCONTRAR RANGOS DE INICIOS Y FINAL DE SEMANA
-    hoy = datetime.date.today()
-    tercero = hoy - datetime.timedelta(1)
-    segundo = hoy - datetime.timedelta(2)
-    primero = hoy - datetime.timedelta(3)
-    
-    
+    hoy = datetime.now()
+    ayer = hoy - timedelta(1)
+    anteayer = hoy - timedelta(2)
+    anteanteayer = hoy - timedelta(3)
 
-    ##  BUSCAR REGISTROS QUE ENTREN EN EL RANGO
-    reportes_primero = Registro.objects.filter(usuario=request.user, fecha__gt=primero - datetime.timedelta(1), fecha__lte=primero)
-    reportes_segundo = Registro.objects.filter(usuario=request.user, fecha__gt=primero, fecha__lte=segundo)
-    reportes_tercero = Registro.objects.filter(usuario=request.user, fecha__gt=segundo, fecha__lte=tercero)
-    reportes_cuarto = Registro.objects.filter(usuario=request.user, fecha__gt=tercero, fecha__lte=hoy)
-
+        
     paquete = {}
+    paquete["labels"] = [        
+        anteanteayer.strftime("%A"),
+        anteayer.strftime("%A"),
+        ayer.strftime("%A"),
+        hoy.strftime("%A")
+    ]
+    datasets = []
     dispositivos = Dispositivo.objects.filter(usuario=request.user)
     for dispositivo in dispositivos:
-        if not dispositivo.nombre in paquete:
-            paquete[dispositivo.nombre] = [0,0,0,0]
+        dispositivo_paquete = {}
+        dias = []
+        dias.append(0)
+        dias.append(0)
+        dias.append(0)
+        dias.append(0)
 
-    for dispositivo in dispositivos:
-        for r in reportes_primero:
-            if r.dispositivo == dispositivo:
-                paquete[dispositivo.nombre][0] += 1
-        for r in reportes_segundo:
-            if r.dispositivo == dispositivo:
-                paquete[dispositivo.nombre][1] += 1
-        for r in reportes_tercero:
-            if r.dispositivo == dispositivo:
-                paquete[dispositivo.nombre][2] += 1
-        for r in reportes_cuarto:
-            if r.dispositivo == dispositivo:
-                paquete[dispositivo.nombre][3] += 1
+        registros = Registro.objects.filter(dispositivo=dispositivo)
+        for registro in registros:
+            if registro.fecha.date() == hoy.date():
+                dias[3] += 1
+            elif registro.fecha.date() == (hoy - timedelta(1)).date():
+                dias[2] += 1
+            elif registro.fecha.date() == (hoy - timedelta(2)).date():
+                dias[1] += 1
+            elif registro.fecha.date() == (hoy - timedelta(3)).date():
+                dias[0] += 1
+        color = "#" + "%06x" % random.randint(0, 0xFFFFFF)
+        dispositivo_paquete["data"] = dias
+        dispositivo_paquete["lineTension"] = 0
+        dispositivo_paquete["backgroundColor"] = 'transparent'
+        dispositivo_paquete["borderColor"] = color
+        dispositivo_paquete["borderWidth"] = 4
+        dispositivo_paquete["pointBackgroundColor"] = color
+        dispositivo_paquete["label"] = dispositivo.nombre
+        dispositivo_paquete["dispositivo"] = dispositivo.nombre
+        datasets.append(dispositivo_paquete)
+    paquete["datasets"] = datasets
 
-
-
+    return paquete
 
 
 

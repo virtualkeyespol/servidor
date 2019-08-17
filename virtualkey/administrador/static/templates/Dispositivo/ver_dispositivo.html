@@ -25,44 +25,49 @@
     <h1 class="h4">Actualmente <u><b>Desbloqueado</b></u></h1>
   {% endif %}
   <br>
-  <h1 class="h4">Llaves compartidas</h1>
-  <div class="table-responsive">
-    <table class="table table-striped table-sm">
-      <thead>
-        <tr>
-          <th>Usuario</th>
-          <th>Creada</th>
-          <th>Expira</th>
-          <th>Estado</th>
-          <th>Revocar</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for llave in LLAVES %}
-        <tr>
-          {% if llave.usuario %}
-            <td>{{ llave.usuario.first_name }} {{ llave.usuario.last_name }}</td>
-          {% else %}
-            <td>{{ llave.correo }}</td>
-          {% endif %}
-          <td>{{ llave.fecha_inicio }}</td>
-          <td>{{ llave.fecha_expiracion }}</td>
-          <td>{{ llave.estado }}</td>
-          <td>
-            {% if llave.estado == "Revocada" or llave.estado == "Expirada" %}
-              <button type="button" class="btn btn-block btn-danger" style="width: 50px;" disabled><span data-feather="trash-2"></span></button>
+  
+  {% if LLAVES %}
+    <h1 class="h4">Llaves compartidas</h1>
+    <div class="table-responsive">
+      <table class="table table-striped table-sm">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Creada</th>
+            <th>Expira</th>
+            <th>Estado</th>
+            <th>Revocar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for llave in LLAVES %}
+          <tr>
+            {% if llave.usuario %}
+              <td>{{ llave.usuario.first_name }} {{ llave.usuario.last_name }}</td>
             {% else %}
-              <form action="/llaves/revocar" method="POST" style="margin: 0px;">
-                {% csrf_token %}
-                <input type="hidden" name="DISPOSITIVO_ID" value="{{ DISPOSITIVO.id }}">
-                <input type="hidden" name="LLAVE_ID" value="{{ llave.id }}">
-                <button class="btn btn-block btn-danger" style="width: 50px;"><span data-feather="trash-2"></span></button>
-              </form>
+              <td>{{ llave.correo }}</td>
             {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+            <td>{{ llave.fecha_inicio }}</td>
+            <td>{{ llave.fecha_expiracion }}</td>
+            <td>{{ llave.estado }}</td>
+            <td>
+              {% if llave.estado == "Revocada" or llave.estado == "Expirada" %}
+                <button type="button" class="btn btn-block btn-danger" style="width: 50px;" disabled><span data-feather="trash-2"></span></button>
+              {% else %}
+                <form action="/llaves/revocar" method="POST" style="margin: 0px;">
+                  {% csrf_token %}
+                  <input type="hidden" name="DISPOSITIVO_ID" value="{{ DISPOSITIVO.id }}">
+                  <input type="hidden" name="LLAVE_ID" value="{{ llave.id }}">
+                  <button class="btn btn-block btn-danger" style="width: 50px;"><span data-feather="trash-2"></span></button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <h1 class="h4">No existen llaves compartidas en este dispositivo.</h1>
+  {% endif %}
 </div>

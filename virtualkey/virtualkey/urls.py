@@ -35,6 +35,7 @@ urlpatterns = [
 
     ##	INDEX
     path('',                                        views.panel_control,                    name='panel_control'),
+    path('get_estadistica',                         views.get_estadistica,                  name='get_estadistica'),
 
     ##	MIS DISPOSITIVOS
     path('dispositivos',                            views.dispositivos,                     name='dispositivos'),
@@ -83,6 +84,8 @@ urlpatterns = [
     path('rest/registro/create',                    rest_views.create_registro,             name='create_registro'),
     path('rest/registro/read',                      rest_views.read_registro,               name='read_registro'),
 
+
+    path('rest/abrir',                      rest_views.abrir,               name='abrir'),
 ]
 
 

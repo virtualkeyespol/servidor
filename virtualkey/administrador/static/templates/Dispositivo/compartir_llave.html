@@ -10,11 +10,17 @@
     </div>
     <div class="form-group">
       <label for="FECHA_INICIO">Fecha de inicio</label>
-      <input type="date" class="form-control" id="FECHA_INICIO" name="FECHA_INICIO" placeholder="Password">
+      <input type="datetime-local" class="form-control" id="FECHA_INICIO" name="FECHA_INICIO">
     </div>
     <div class="form-group">
       <label for="FECHA_EXPIRACION">Fecha de expiración</label>
-      <input type="date" class="form-control" id="FECHA_EXPIRACION" name="FECHA_EXPIRACION" placeholder="Password">
+      <input type="datetime-local" class="form-control" id="FECHA_EXPIRACION" name="FECHA_EXPIRACION">
+    </div>
+    <div class="form-group">
+      <div style="display: flex;">
+        <label for="MULTIUSO" style="width: 100px; margin-top: 7px;">Un solo uso </label>
+        <input type="checkbox" class="form-control" id="MULTIUSO" name="MULTIUSO">
+      </div>
     </div>
     <button type="submit" class="btn btn-primary">Compartir</button>
   </form>

@@ -193,16 +193,23 @@ def update_llave(request):
 ##  Con éxito la función retorna las llaves asociadas al dispositivo ligado al número de serie
 ##  Con error la función retorna mensaje de error.
 def read_llaves_dispositivo(request):
-    token = Sesion().is_autenticated(request)
-    if request.method == "GET" and token:
+    if request.method == "GET":
+        accion = 0
         body = request.GET
         numero_serie = body.get("NUMERO_SERIE", None)
         if Dispositivo().validar_numero_serie(numero_serie):
             respuesta = Llave().read(body)
+            dispositivo = Dispositivo.objects.get(numero_serie=numero_serie)
+            print(dispositivo)
+            if dispositivo.estado == True:
+                accion = 1
+                dispositivo.estado = False
+                dispositivo.save()
             if not respuesta==None:
                 return JsonResponse({
                     'STATUS' : 'OK',
-                    'RESPUESTA' : respuesta
+                    'RESPUESTA' : respuesta,
+                    'ACCION' : accion
                 })
     return JsonResponse({
         'STATUS' : 'ERROR',
@@ -231,6 +238,7 @@ def verificar_llave(request):
         'STATUS' : 'ERROR',
         'RESPUESTA' : 'Error de solicitud'
     })
+
 
 #############################################################
                     ## REGISTROS
@@ -276,3 +284,41 @@ def read_registro(request):
         'STATUS' : 'ERROR',
         'RESPUESTA' : 'Error de solicitud'
     })
+
+
+
+
+
+
+@csrf_exempt
+def abrir(request):
+    token = Sesion().is_autenticated(request)
+    if request.method == "POST" and token:
+        body = utils.request_todict(request)
+        codigo = body.get("CODIGO", None)
+        print("CODIGO")
+        print(codigo)
+        llave = Llave.objects.get(codigo=codigo)
+        llave.dispositivo.estado = True 
+        llave.dispositivo.save()
+        ## CREANDO REGISTRO
+        registro = Registro()
+        registro.llave = llave
+        registro.dispositivo = llave.dispositivo
+        registro.usuario = llave.usuario
+        registro.save()
+
+        return JsonResponse({
+            'STATUS' : 'OK',
+            'RESPUESTA' : 'DISPOSITIVO ABIERTO'
+        })  
+    return JsonResponse({
+        'STATUS' : 'ERROR',
+        'RESPUESTA' : 'Error de solicitud'
+    })
+
+
+
+
+
+

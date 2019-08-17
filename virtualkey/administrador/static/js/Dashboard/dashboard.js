@@ -1,8 +1,21 @@
 /* globals Chart:false, feather:false */
 
-(function () {
-  'use strict'
+data_raw = {}
 
+function loadDoc() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      data_raw = JSON.parse(this.responseText);
+      setup_chart();
+    }
+  };
+  xhttp.open("GET", "/get_estadistica", true);
+  xhttp.send();
+}
+
+function setup_chart() {
+  'use strict'
   feather.replace()
 
   // Graphs
@@ -11,47 +24,8 @@
   var myChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: [
-        'Sunday',
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday'
-      ],
-      datasets: [{
-        data: [
-          15339,
-          21345,
-          18483,
-          24003,
-          23489,
-          24092,
-          12034
-        ],
-        lineTension: 0,
-        backgroundColor: 'transparent',
-        borderColor: '#007bff',
-        borderWidth: 4,
-        pointBackgroundColor: '#007bff'
-      },
-      {
-        data: [
-          15439,
-          11345,
-          38483,
-          21003,
-          20489,
-          22092,
-          16034
-        ],
-        lineTension: 0,
-        backgroundColor: 'transparent',
-        borderColor: '#aa7bbf',
-        borderWidth: 4,
-        pointBackgroundColor: '#aa7bbf'
-      }]
+      labels: data_raw.DATA.labels,
+      datasets: data_raw.DATA.datasets
     },
     options: {
       scales: {
@@ -62,8 +36,10 @@
         }]
       },
       legend: {
-        display: false
+        display: true
       }
     }
   })
-}())
+}
+
+loadDoc();

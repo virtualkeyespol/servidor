@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render
 from django.forms.models import model_to_dict
 from django.contrib.auth import authenticate, login, logout
+from django.http import JsonResponse
 from rest.models import *
 
 
@@ -48,7 +49,6 @@ def cerrar_sesion(request):
 #############################################################
 def panel_control(request):
     if request.user.is_authenticated:
-        generar_estadistica(request)
         paquete = {
             'OPCION' : 'panel_control',
             'PANEL_CONTROL_ACTIVE' : 'active'
@@ -56,7 +56,13 @@ def panel_control(request):
         return render(request, "General/index.html", paquete)
     return redirect('iniciar_sesion')
 
-    
+## AJAX FUNC
+def get_estadistica(request):
+    data = generar_estadistica(request);
+    return JsonResponse({
+        "DATA" : data
+    })
+
 
 #############################################################
                     ## MIS DISPOSITIVOS
@@ -90,7 +96,7 @@ def crear_dispositivo(request):
 def ver_dispositivo(request, id):
     if request.user.is_authenticated:
         dispositivo = Dispositivo.objects.get(pk=id)                                        ## BUSCAR DISPOSITIVO
-        llaves = Llave.objects.filter(dispositivo=dispositivo)
+        llaves = Llave.objects.filter(dispositivo=dispositivo).filter(es_dueno=False)
         paquete = {
             'OPCION' : 'ver_dispositivo',
             'DISPOSITIVOS_ACTIVE' : 'active',
@@ -134,7 +140,7 @@ def compartir_acceso(request, id):
 #############################################################
 def llaves(request):
     if request.user.is_authenticated:
-        llaves = Llave.objects.filter(usuario=request.user)                                 ## BUSCAR LLAVES
+        llaves = Llave.objects.filter(usuario=request.user).filter(es_dueno=False)                                 ## BUSCAR LLAVES
         paquete = {
             'OPCION' : 'llaves',
             'LLAVES_ACTIVE' : 'active',
