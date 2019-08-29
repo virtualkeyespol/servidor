@@ -125,9 +125,11 @@ def delete_dispositivo(request):
                     ## LLAVES
 #############################################################
 
-##  Parámetros Obligatorios: <TOKEN>, <CORREO>, <NUMERO_SERIE>, <FECHA_INICIO> y <FECHA_EXPIRACION> (a tráves de POST)
+##  Parámetros Obligatorios: <TOKEN>, <CORREO>, <NUMERO_SERIE> (a tráves de POST)
+##  Parámetros opcionales: <MULTIUSO>, <DUENO>, <FECHA_INICIO> y <FECHA_EXPIRACION>
 ##  Con éxito la función retorna la instancia de llave creada, con error la función retorna mensaje de error.
-##  Parámetro <FECHA_INICIO> y <FECHA_EXPIRACION> aceptan formato ej. "2019-07-23T05:40:27Z"
+##  Parámetro <FECHA_INICIO> y <FECHA_EXPIRACION> aceptan formato de fecha ej. "2019-07-23T05:40:27Z"
+##  Parámetro <MULTIUSO> y <DUENO> aceptan formato booleano ej. "True" o "False"
 @csrf_exempt
 def create_llave(request):
     token = Sesion().is_autenticated(request)

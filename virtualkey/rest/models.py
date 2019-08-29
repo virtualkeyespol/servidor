@@ -251,15 +251,16 @@ class Llave(models.Model):
         fecha_inicio = body.get("FECHA_INICIO", None)
         fecha_expiracion = body.get("FECHA_EXPIRACION", None)
         es_multiuso =  body.get("MULTIUSO", None)
+        es_dueno =  body.get("DUENO", None)
         try:
             dispositivo = Dispositivo.objects.filter(numero_serie=numero_serie).first()
             if not dispositivo:
                 dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
             usuario = Usuario().findbyemail(correo)
             llave = cls(dispositivo=dispositivo, usuario=usuario, correo=correo, codigo=secrets.token_urlsafe(15), fecha_inicio=fecha_inicio, fecha_expiracion=fecha_expiracion)
-            if es_multiuso == "on":
+            if es_multiuso == "False" or es_multiuso == "false":
                 llave.es_multiuso = False
-            if es_dueno == True:
+            if es_dueno == "True" or es_dueno == "true":
                 llave.es_dueno = True 
             llave.save()
             return llave
@@ -289,18 +290,30 @@ class Llave(models.Model):
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
                 for i in range(0, len(llaves)):
                     usuario = model_to_dict(Usuario().getUser(llaves[i] ["usuario"]))
+                    usuario.pop("id", None)
+                    usuario.pop("password", None)
+
                     dispositivo = model_to_dict(Dispositivo.objects.get(pk=llaves[i] ["dispositivo"]))
-                    llaves[i]["usuario"] = usuario
-                    llaves[i]["dispositivo"] = dispositivo
+                    dispositivo.pop("id", None)
+                    dispositivo.pop("usuario", None)
+
+                    llaves[i].update(usuario)
+                    llaves[i].update(dispositivo)
                 return llaves
             elif llave_id:
                 llave = Llave.objects.get(pk=llave_id)
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
                 llave = model_to_dict(llave)
                 usuario = model_to_dict(Usuario().getUser(llave["usuario"]))
+                usuario.pop("id", None)
+                usuario.pop("password", None)
+
                 dispositivo = model_to_dict(Dispositivo.objects.get(pk=llave["dispositivo"]))
-                llave["usuario"] = usuario
-                llave["dispositivo"] = dispositivo
+                dispositivo.pop("id", None)
+                dispositivo.pop("usuario", None)
+
+                llave.update(usuario)
+                llave.update(dispositivo)
                 return llave
             elif numero_serie:
                 dispositivo = Dispositivo.objects.get(numero_serie=numero_serie)
@@ -309,9 +322,15 @@ class Llave(models.Model):
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
                 for i in range(0, len(llaves)):
                     usuario = model_to_dict(Usuario().getUser(llaves[i]["usuario"]))
+                    usuario.pop("id", None)
+                    usuario.pop("password", None)
+
                     dispositivo = model_to_dict(Dispositivo.objects.get(pk=llaves[i]["dispositivo"]))
-                    llaves[i]["usuario"] = usuario
-                    llaves[i]["dispositivo"] = dispositivo
+                    dispositivo.pop("id", None)
+                    dispositivo.pop("usuario", None)
+
+                    llaves[i].update(usuario)
+                    llaves[i].update(dispositivo)
                 return llaves
             else:
                 usuario = Sesion().get_user(token)
@@ -320,11 +339,18 @@ class Llave(models.Model):
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
                 for i in range(0, len(llaves)):
                     usuario = model_to_dict(Usuario().getUser(llaves[i]["usuario"]))
+                    usuario.pop("id", None)
+                    usuario.pop("password", None)
+
                     dispositivo = model_to_dict(Dispositivo.objects.get(pk=llaves[i]["dispositivo"]))
-                    llaves[i]["usuario"] = usuario
-                    llaves[i]["dispositivo"] = dispositivo
+                    dispositivo.pop("id", None)
+                    dispositivo.pop("usuario", None)
+
+                    llaves[i].update(usuario)
+                    llaves[i].update(dispositivo)
                 return llaves
-        except:
+        except Exception as e:
+            print(str(e))
             return None
 
     def update(self, body):
