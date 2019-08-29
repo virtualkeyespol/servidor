@@ -263,7 +263,7 @@ class Llave(models.Model):
                 llave.es_multiuso = False
             if es_dueno == "True" or es_dueno == "true":
                 llave.es_dueno = True 
-            if acceso_ilimitado == "True" or acceso_ilimitado == "true":
+            if acceso_ilimitado == "True" or acceso_ilimitado == "true" or llave.es_dueno == True:
                 llave.acceso_ilimitado = True 
             llave.save()
             return llave
@@ -464,11 +464,10 @@ def get_llave_data(llave):
         "es_multiuso" : llave.es_multiuso,
         "acceso_ilimitado" : llave.acceso_ilimitado
     }
-    if llave.fecha_inicio:
-        paquete["fecha_inicio"] = llave.fecha_inicio.strftime("%d/%m/%Y - %H:%M:%S")
-    if llave.fecha_expiracion:
-        paquete["fecha_expiracion"] = llave.fecha_inicio.strftime("%d/%m/%Y - %H:%M:%S")
 
+    paquete["fecha_inicio"] = llave.fecha_inicio.strftime("%d/%m/%Y - %H:%M:%S") if llave.fecha_inicio else "indefinido"
+    paquete["fecha_expiracion"] = llave.fecha_expiracion.strftime("%d/%m/%Y - %H:%M:%S") if llave.fecha_expiracion else "indefinido"
+    
     return paquete
 
 ##  OBTENER INFORMACION DE REGISTRO
