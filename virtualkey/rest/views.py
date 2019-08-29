@@ -16,6 +16,30 @@ from rest.models import *
 #############################################################
                     ## AUTENTICACION
 #############################################################
+##  Parámetros Obligatorios: <CORREO>, <CONTRASENA>, <NOMBRES>, <APELLIDOS> (a través de POST)
+##  Con éxito la función retorna el token de sesión, con error la función retorna mensaje de error.
+@csrf_exempt
+def rest_crear_usuario(request):
+    if request.method == "POST":
+        body = utils.request_todict(request)
+        usuario = Usuario().create(body)
+        if usuario is not None:
+            sesion = Sesion().create(usuario)
+            return JsonResponse({
+                'STATUS' : 'OK',
+                'RESPUESTA' : sesion.token
+            })
+        else:
+            return JsonResponse({
+                'STATUS' : 'ERROR',
+                'RESPUESTA' : 'Error creando usuario'
+            })            
+    return JsonResponse({
+        'STATUS' : 'ERROR',
+        'RESPUESTA' : 'Error de solicitud'
+    })
+
+        
 
 ##  Parámetros Obligatorios: <USUARIO> y <CONTRASENA> (a través de POST)
 ##  Con éxito la función retorna el token de sesión, con error la función retorna mensaje de error.

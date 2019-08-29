@@ -63,6 +63,7 @@ urlpatterns = [
                         ## REST API 
     #############################################################
     ##  AUTH
+    path('rest/register',                           rest_views.rest_crear_usuario,          name='rest_crear_usuario'),
     path('rest/login',                              rest_views.rest_iniciar_sesion,         name='rest_iniciar_sesion'),
     path('rest/logout',                             rest_views.rest_cerrar_sesion,          name='rest_cerrar_sesion'),
 
