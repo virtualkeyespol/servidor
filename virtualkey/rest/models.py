@@ -466,7 +466,7 @@ def get_llave_data(llave):
     }
     if llave.fecha_inicio:
         paquete["fecha_inicio"] = llave.fecha_inicio.strftime("%d/%m/%Y - %H:%M:%S")
-    if llav.fecha_expiracion:
+    if llave.fecha_expiracion:
         paquete["fecha_expiracion"] = llave.fecha_inicio.strftime("%d/%m/%Y - %H:%M:%S")
 
     return paquete
