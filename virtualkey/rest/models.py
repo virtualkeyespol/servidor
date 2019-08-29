@@ -155,7 +155,10 @@ class Dispositivo(models.Model):
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
                 dispositivo = model_to_dict(dispositivo)
                 usuario = model_to_dict(Usuario().getUser(dispositivo["usuario"]))
-                dispositivo["usuario"] = usuario
+                usuario.pop("id", None)
+                usuario.pop("password", None)
+
+                dispositivo.update(usuario)
                 return dispositivo
             else:
                 usuario = Sesion().get_user(token)
@@ -164,7 +167,10 @@ class Dispositivo(models.Model):
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
                 for i in range(0, len(dispositivos)):
                     usuario = model_to_dict(Usuario().getUser(dispositivos[i]["usuario"]))
-                    dispositivos[i]["usuario"] = usuario
+                    usuario.pop("id", None)
+                    usuario.pop("password", None)
+                    
+                    dispositivos[i].update(usuario)
                 return dispositivos
         except Exception as e:
             print(str(e))
