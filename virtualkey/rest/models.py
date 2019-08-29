@@ -460,7 +460,6 @@ def get_llave_data(llave):
     paquete = {
         "llave_id" : llave.id,
         "codigo" : llave.codigo,
-        "fecha_expiracion" : llave.fecha_expiracion.strftime("%d/%m/%Y - %H:%M:%S"),
         "es_dueno" : llave.es_dueno,
         "es_multiuso" : llave.es_multiuso,
         "acceso_ilimitado" : llave.acceso_ilimitado
@@ -469,7 +468,7 @@ def get_llave_data(llave):
         paquete["fecha_inicio"] = llave.fecha_inicio.strftime("%d/%m/%Y - %H:%M:%S")
     if llav.fecha_expiracion:
         paquete["fecha_expiracion"] = llave.fecha_inicio.strftime("%d/%m/%Y - %H:%M:%S")
-        
+
     return paquete
 
 ##  OBTENER INFORMACION DE REGISTRO
