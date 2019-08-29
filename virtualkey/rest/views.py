@@ -277,7 +277,7 @@ def read_registro(request):
     if request.method == "GET" and token:
         body = request.GET
         respuesta = Registro().read(body)
-        if respuesta:
+        if not respuesta==None:
             return JsonResponse({
                 'STATUS' : 'OK',
                 'RESPUESTA' : respuesta

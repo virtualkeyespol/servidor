@@ -166,8 +166,7 @@ class Dispositivo(models.Model):
                     dispositivo_dic.update(get_dispositivo_data(dispositivo))
                     paquete.append(dispositivo_dic)
                 return paquete
-        except Exception as e:
-            print(str(e))
+        except:
             return None
 
     def update(self, body):
@@ -382,47 +381,50 @@ class Registro(models.Model):
         token = body.get("TOKEN", None)
         try:
             if registro_id:
+                registro_dic = {}
                 registro = Registro.objects.get(pk=registro_id)
-                registro = model_to_dict(registro)
+
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
-                usuario = model_to_dict(Usuario().getUser(registro["usuario"]))
-                dispositivo = model_to_dict(Dispositivo.objects.get(pk=registro["dispositivo"]))
-                registro["usuario"] = usuario
-                registro["dispositivo"] = dispositivo
-                return registro
+                registro_dic.update(get_user_data(registro.usuario))
+                registro_dic.update(get_dispositivo_data(registro.dispositivo))
+                registro_dic.update(get_registro_data(registro))
+                return registro_dic
             elif llave_id:
+                paquete = []
                 llave = Llave.objects.get(pk=llave_id)
                 registros = Registro.objects.filter(llave=llave)
-                registros = utils.instancias_todic(registros)
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
-                for i in range(0, len(registros)):
-                    usuario = model_to_dict(Usuario().getUser(registros[i]["usuario"]))
-                    dispositivo = model_to_dict(Dispositivo.objects.get(pk=registros[i]["dispositivo"]))
-                    registros[i]["usuario"] = usuario
-                    registros[i]["dispositivo"] = dispositivo
-                return registros
+                for registro in registros:
+                    registro_dic = {}
+                    registro_dic.update(get_user_data(registro.usuario))
+                    registro_dic.update(get_dispositivo_data(registro.dispositivo))
+                    registro_dic.update(get_registro_data(registro))
+                    paquete.append(registro_dic)
+                return paquete
             elif dispositivo_id:
+                paquete = []
                 dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
                 registros = Registro.objects.filter(dispositivo=dispositivo)
-                registros = utils.instancias_todic(registros)
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
-                for i in range(0, len(registros)):
-                    usuario = model_to_dict(Usuario().getUser(registros[i]["usuario"]))
-                    dispositivo = model_to_dict(Dispositivo.objects.get(pk=registros[i]["dispositivo"]))
-                    registros[i]["usuario"] = usuario
-                    registros[i]["dispositivo"] = dispositivo
-                return registros
+                for registro in registros:
+                    registro_dic = {}
+                    registro_dic.update(get_user_data(registro.usuario))
+                    registro_dic.update(get_dispositivo_data(registro.dispositivo))
+                    registro_dic.update(get_registro_data(registro))
+                    paquete.append(registro_dic)
+                return paquete
             else:
+                paquete = []
                 usuario = Sesion().get_user(token)
                 registros = Registro.objects.filter(usuario=usuario)
-                registros = utils.instancias_todic(registros)
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
-                for i in range(0, len(registros)):
-                    usuario = model_to_dict(Usuario().getUser(registros[i]["usuario"]))
-                    dispositivo = model_to_dict(Dispositivo.objects.get(pk=registros[i]["dispositivo"]))
-                    registros[i]["usuario"] = usuario
-                    registros[i]["dispositivo"] = dispositivo
-                return registros
+                for registro in registros:
+                    registro_dic = {}
+                    registro_dic.update(get_user_data(registro.usuario))
+                    registro_dic.update(get_dispositivo_data(registro.dispositivo))
+                    registro_dic.update(get_registro_data(registro))
+                    paquete.append(registro_dic)
+                return paquete
         except:
             return None
 
@@ -447,7 +449,7 @@ def get_dispositivo_data(dispositivo):
     paquete = {
         "dispositivo_id" : dispositivo.id,
         "nombre_dispositivo" : dispositivo.nombre,
-        "numero_serie" : dispositivo.numero_serie,
+        "modelo" : dispositivo.modelo,
         "propietario_nombre" : dispositivo.usuario.first_name + dispositivo.usuario.last_name,
         "propietario_username" : dispositivo.usuario.username
     }
@@ -458,11 +460,19 @@ def get_llave_data(llave):
     paquete = {
         "llave_id" : llave.id,
         "codigo" : llave.codigo,
-        "fecha_inicio" : llave.fecha_inicio,
-        "fecha_expiracion" : llave.fecha_expiracion,
+        "fecha_inicio" : llave.fecha_inicio.strftime("%d/%m/%Y - %H:%M:%S"),
+        "fecha_expiracion" : llave.fecha_expiracion.strftime("%d/%m/%Y - %H:%M:%S"),
         "es_dueno" : llave.es_dueno,
         "es_multiuso" : llave.es_multiuso,
         "acceso_ilimitado" : llave.acceso_ilimitado
+    }
+    return paquete
+
+##  OBTENER INFORMACION DE REGISTRO
+def get_registro_data(registro):
+    paquete = {
+        "registro_id" : registro.id,
+        "fecha" : registro.fecha.strftime("%d/%m/%Y - %H:%M:%S")
     }
     return paquete
 
