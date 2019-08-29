@@ -240,7 +240,7 @@ class Llave(models.Model):
     acceso_ilimitado = models.BooleanField(default=False)
 
     def __str__(self):
-        return "Llave de: " + self.dispositivo.nombre
+        return "Llave de: " + self.dispositivo.nombre + " | " + self.usuario.username 
 
     @classmethod
     def create(cls, body):
@@ -467,7 +467,7 @@ def get_llave_data(llave):
 
     paquete["fecha_inicio"] = llave.fecha_inicio.strftime("%d/%m/%Y - %H:%M:%S") if llave.fecha_inicio else "indefinido"
     paquete["fecha_expiracion"] = llave.fecha_expiracion.strftime("%d/%m/%Y - %H:%M:%S") if llave.fecha_expiracion else "indefinido"
-    
+
     return paquete
 
 ##  OBTENER INFORMACION DE REGISTRO
