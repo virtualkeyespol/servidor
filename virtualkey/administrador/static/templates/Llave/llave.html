@@ -16,7 +16,7 @@
         <tr>
           <td>{{ llave.dispositivo.nombre }}</td>
           <td>{{ llave.estado }}</td>
-          <td>{{ llave.usuario.first_name }} {{ llave.usuario.last_name }}</td>
+          <td>{{ llave.dispositivo.usuario.first_name }} {{ llave.dispositivo.usuario.last_name }}</td>
           <td>{{ llave.fecha_expiracion }}</td>
         </tr>
       {% endfor %}
