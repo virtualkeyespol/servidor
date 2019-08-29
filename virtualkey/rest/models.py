@@ -153,25 +153,19 @@ class Dispositivo(models.Model):
             if dispositivo_id:
                 dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
-                dispositivo = model_to_dict(dispositivo)
-                usuario = model_to_dict(Usuario().getUser(dispositivo["usuario"]))
-                usuario.pop("id", None)
-                usuario.pop("password", None)
-
-                dispositivo.update(usuario)
-                return dispositivo
+                dispositivo_dic = {}
+                dispositivo_dic.update(get_dispositivo_data(dispositivo))
+                return dispositivo_dic
             else:
+                paquete = []
                 usuario = Sesion().get_user(token)
                 dispositivos = Dispositivo.objects.filter(usuario=usuario)
-                dispositivos = utils.instancias_todic(dispositivos)
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
-                for i in range(0, len(dispositivos)):
-                    usuario = model_to_dict(Usuario().getUser(dispositivos[i]["usuario"]))
-                    usuario.pop("id", None)
-                    usuario.pop("password", None)
-                    
-                    dispositivos[i].update(usuario)
-                return dispositivos
+                for dispositivo in dispositivos:
+                    dispositivo_dic = {}
+                    dispositivo_dic.update(get_dispositivo_data(dispositivo))
+                    paquete.append(dispositivo_dic)
+                return paquete
         except Exception as e:
             print(str(e))
             return None

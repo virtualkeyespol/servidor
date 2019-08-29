@@ -72,7 +72,7 @@ def read_dispositivo(request):
     token = Sesion().is_autenticated(request)
     if request.method == "GET" and token:
         respuesta = Dispositivo().read(request)
-        if respuesta:
+        if not respuesta==None:
             return JsonResponse({
                 'STATUS' : 'OK',
                 'RESPUESTA' : respuesta
