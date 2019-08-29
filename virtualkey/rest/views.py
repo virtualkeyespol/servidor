@@ -159,7 +159,7 @@ def read_llave(request):
     if request.method == "GET" and token:
         body = request.GET
         respuesta = Llave().read(body)
-        if respuesta:
+        if not respuesta==None:
             return JsonResponse({
                 'STATUS' : 'OK',
                 'RESPUESTA' : respuesta

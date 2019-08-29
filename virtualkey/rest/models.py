@@ -244,6 +244,7 @@ class Llave(models.Model):
     revocada = models.BooleanField(default=False)
     es_multiuso = models.BooleanField(default=True)
     es_dueno = models.BooleanField(default=False)
+    acceso_ilimitado = models.BooleanField(default=False)
 
     def __str__(self):
         return "Llave de: " + self.dispositivo.nombre
@@ -258,6 +259,7 @@ class Llave(models.Model):
         fecha_expiracion = body.get("FECHA_EXPIRACION", None)
         es_multiuso =  body.get("MULTIUSO", None)
         es_dueno =  body.get("DUENO", None)
+        acceso_ilimitado =  body.get("ACCESO_ILIMITADO", None)
         try:
             dispositivo = Dispositivo.objects.filter(numero_serie=numero_serie).first()
             if not dispositivo:
@@ -268,6 +270,8 @@ class Llave(models.Model):
                 llave.es_multiuso = False
             if es_dueno == "True" or es_dueno == "true":
                 llave.es_dueno = True 
+            if acceso_ilimitado == "True" or acceso_ilimitado == "true":
+                llave.acceso_ilimitado = True 
             llave.save()
             return llave
         except:
@@ -289,72 +293,44 @@ class Llave(models.Model):
         llave_id = body.get("LLAVE_ID", None)
         numero_serie = body.get("NUMERO_SERIE", None)
         try:
-            if dispositivo_id:    
-                dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
+            if dispositivo_id or numero_serie:   
+                paquete = []
+                dispositivo = Dispositivo()
+                if dispositivo_id:
+                    dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
+                if numero_serie:
+                    dispositivo = Dispositivo.objects.get(numero_serie=numero_serie)
                 llaves = Llave.objects.filter(dispositivo=dispositivo)
-                llaves = utils.instancias_todic(llaves)
+
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
-                for i in range(0, len(llaves)):
-                    usuario = model_to_dict(Usuario().getUser(llaves[i] ["usuario"]))
-                    usuario.pop("id", None)
-                    usuario.pop("password", None)
-
-                    dispositivo = model_to_dict(Dispositivo.objects.get(pk=llaves[i] ["dispositivo"]))
-                    dispositivo.pop("id", None)
-                    dispositivo.pop("usuario", None)
-
-                    llaves[i].update(usuario)
-                    llaves[i].update(dispositivo)
-                return llaves
+                for llave in llaves:
+                    llave_dic = {}
+                    llave_dic.update(get_user_data(llave.usuario))
+                    llave_dic.update(get_dispositivo_data(llave.dispositivo))
+                    llave_dic.update(get_llave_data(llave))
+                    paquete.append(llave_dic)
+                return paquete
             elif llave_id:
+                llave_dic = {}
                 llave = Llave.objects.get(pk=llave_id)
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
-                llave = model_to_dict(llave)
-                usuario = model_to_dict(Usuario().getUser(llave["usuario"]))
-                usuario.pop("id", None)
-                usuario.pop("password", None)
-
-                dispositivo = model_to_dict(Dispositivo.objects.get(pk=llave["dispositivo"]))
-                dispositivo.pop("id", None)
-                dispositivo.pop("usuario", None)
-
-                llave.update(usuario)
-                llave.update(dispositivo)
-                return llave
-            elif numero_serie:
-                dispositivo = Dispositivo.objects.get(numero_serie=numero_serie)
-                llaves = Llave.objects.filter(dispositivo=dispositivo)
-                llaves = utils.instancias_todic(llaves)
-                ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
-                for i in range(0, len(llaves)):
-                    usuario = model_to_dict(Usuario().getUser(llaves[i]["usuario"]))
-                    usuario.pop("id", None)
-                    usuario.pop("password", None)
-
-                    dispositivo = model_to_dict(Dispositivo.objects.get(pk=llaves[i]["dispositivo"]))
-                    dispositivo.pop("id", None)
-                    dispositivo.pop("usuario", None)
-
-                    llaves[i].update(usuario)
-                    llaves[i].update(dispositivo)
-                return llaves
+                llave_dic.update(get_user_data(llave.usuario))
+                llave_dic.update(get_dispositivo_data(llave.dispositivo))
+                llave_dic.update(get_llave_data(llave))
+                return llave_dic
             else:
+                paquete = []
                 usuario = Sesion().get_user(token)
                 llaves = Llave.objects.filter(usuario=usuario)
-                llaves = utils.instancias_todic(llaves)
                 ## AÑADIR DESCRIPCION EXTRA DE USUARIO Y DISPOSITIVO
-                for i in range(0, len(llaves)):
-                    usuario = model_to_dict(Usuario().getUser(llaves[i]["usuario"]))
-                    usuario.pop("id", None)
-                    usuario.pop("password", None)
+                for llave in llaves:
+                    llave_dic = {}
+                    llave_dic.update(get_user_data(llave.usuario))
+                    llave_dic.update(get_dispositivo_data(llave.dispositivo))
+                    llave_dic.update(get_llave_data(llave))
+                    paquete.append(llave_dic)
 
-                    dispositivo = model_to_dict(Dispositivo.objects.get(pk=llaves[i]["dispositivo"]))
-                    dispositivo.pop("id", None)
-                    dispositivo.pop("usuario", None)
-
-                    llaves[i].update(usuario)
-                    llaves[i].update(dispositivo)
-                return llaves
+                return paquete
         except Exception as e:
             print(str(e))
             return None
@@ -462,8 +438,41 @@ class Registro(models.Model):
 ############                MODEL FUNCTIONS                   ############ 
 ##########################################################################
 
+##  OBTENER INFORMACION DEL USUARIO
+def get_user_data(usuario):
+    paquete = {
+        "usuario_id" : usuario.id,
+        "first_name" : usuario.first_name,
+        "last_name" : usuario.last_name,
+        "username" : usuario.username,
+    }
+    return paquete
 
-##GENERAR ESTADISTICA PARA PANEL DE CONTROL
+##  OBTENER INFORMACION DEL DISPOSITIVO
+def get_dispositivo_data(dispositivo):
+    paquete = {
+        "dispositivo_id" : dispositivo.id,
+        "nombre_dispositivo" : dispositivo.nombre,
+        "numero_serie" : dispositivo.numero_serie,
+        "propietario_nombre" : dispositivo.usuario.first_name + dispositivo.usuario.last_name,
+        "propietario_username" : dispositivo.usuario.username
+    }
+    return paquete
+
+##  OBTENER INFORMACION DE LLAVE
+def get_llave_data(llave):
+    paquete = {
+        "llave_id" : llave.id,
+        "codigo" : llave.codigo,
+        "fecha_inicio" : llave.fecha_inicio,
+        "fecha_expiracion" : llave.fecha_expiracion,
+        "es_dueno" : llave.es_dueno,
+        "es_multiuso" : llave.es_multiuso,
+        "acceso_ilimitado" : llave.acceso_ilimitado
+    }
+    return paquete
+
+##  GENERAR ESTADISTICA PARA PANEL DE CONTROL
 def generar_estadistica(request):
     ##
     ## ARREGLAR QUERIES DE BUSQUEDA SEGUN FECHAS
