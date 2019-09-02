@@ -2,7 +2,7 @@
 {% include 'General/header.html' %}
 {% if NUMERO_SERIE %}
   <h1 style="text-align: center">Dispositivo registrado con éxito</h1>
-  <h3 style="text-align: center">Numero de serie: <b>{{ NUMERO_SERIE }}</b></h3>
+  <h3 style="text-align: center">MAC: <b>{{ NUMERO_SERIE }}</b></h3>
   <form action="" method="GET" style="text-align: center; margin-top: 30px;">
     <button type="submit" class="btn btn-primary">Registrar más</button>
   </form>
@@ -11,13 +11,32 @@
     <h1 class="h2" style="margin-left: 20px;">Registro de Dispositivo</h1>
   </div>
   <div class="container">
-    <form action="" method="POST">
+    <form action="" method="POST" id="form">
       {% csrf_token %}
       <div class="form-group">
         <label for="MODELO">Modelo</label>
-        <input type="text" class="form-control" id="MODELO" name="MODELO" placeholder="Ingrese modelo">
+        <input type="text" class="form-control input" id="MODELO" name="MODELO" placeholder="Ingrese modelo">
       </div>
-      <button type="submit" class="btn btn-primary">Registrar</button>
+      <div class="form-group">
+        <label for="MODELO">Dirección MAC</label>
+        <div style="display: flex;">
+          <input type="text" class="form-control input mac-input" style="width: 50px;" maxlength="2" posicion="0">
+          <h4 style="margin: 0px 5px;">:</h4>
+          <input type="text" class="form-control input mac-input" style="width: 50px;" maxlength="2" posicion="1">
+          <h4 style="margin: 0px 5px;">:</h4>
+          <input type="text" class="form-control input mac-input" style="width: 50px;" maxlength="2" posicion="2">
+          <h4 style="margin: 0px 5px;">:</h4>
+          <input type="text" class="form-control input mac-input" style="width: 50px;" maxlength="2" posicion="3">
+          <h4 style="margin: 0px 5px;">:</h4>
+          <input type="text" class="form-control input mac-input" style="width: 50px;" maxlength="2" posicion="4">
+          <h4 style="margin: 0px 5px;">:</h4>
+          <input type="text" class="form-control input mac-input" style="width: 50px;" maxlength="2" posicion="5">
+        </div>
+        <input type="hidden" name="MAC" id="mac">
+      </div>
+
+      <button type="button" class="btn btn-primary" id="btn-registrar">Registrar</button>
     </form>
   </div>
 {% endif %}
+<script type="text/javascript" src="{% static 'js/Apartado/apartado.js' %}"></script>

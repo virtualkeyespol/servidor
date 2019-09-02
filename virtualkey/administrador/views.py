@@ -120,6 +120,7 @@ def compartir_acceso(request, id):
     if request.user.is_authenticated:
         if request.method == "POST":
             body = utils.combinar_request("DISPOSITIVO_ID", id, request.POST)
+            print(body)
             llave = Llave().create(body)
             if llave:
                 return redirect('ver_dispositivo', id)

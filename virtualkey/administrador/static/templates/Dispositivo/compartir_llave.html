@@ -3,18 +3,19 @@
   <h1 class="h2">Compartir Llave de {{ DISPOSITIVO }}</h1>
 </div>
 <div class="container">
-  <form action="" method="POST">
+  <form action="" method="POST" id="compartir-form">
     {% csrf_token %}
+    <input type="hidden" name="NUMERO_SERIE" value="{{ DISPOSITIVO.numero_serie }}">
     <div class="form-group">
-      <label for="CORREO">Correo del usuario</label>
-      <input type="email input" class="form-control" id="CORREO" name="CORREO" aria-describedby="emailHelp" placeholder="Ingrese correo">
+      <label for="CORREO">Ingrese correo del usuario</label>
+      <input type="email" class="form-control input" id="CORREO" name="CORREO" aria-describedby="emailHelp" placeholder="Ingrese correo">
     </div>
     <div class="form-group">
-       <label for="CORREO">Tipo de acceso</label>
+       <label for="CORREO">Seleccione el tipo de acceso</label>
       <p>
         <a class="btn btn-secondary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" id="acceso_ilimitado">Acceso Ilimitado</a>
         <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#multiCollapseExample2" aria-expanded="false" aria-controls="multiCollapseExample2" id="acceso_limitado">Acceso Limitado</button>
-        <input type="hidden" name="acceso" class="input">
+        <input type="hidden" name="ACCESO_ILIMITADO" class="input" id="acceso-input">
       </p>
       <div class="row">
         <div class="col">
@@ -30,10 +31,9 @@
               </div>
               <div class="form-group">
                 <div style="display: flex;">
-                  <label for="MULTIUSO" style="width: 300px; margin-top: 7px;">Un solo uso </label>
-                  <input type="checkbox" class="form-control sub-input" id="MULTIUSO" name="MULTIUSO">
-                  <label for="MULTIUSO" style="width: 300px; margin-top: 7px;">Multiuso</label>
-                  <input type="checkbox" class="form-control sub-input" id="MULTIUSO" name="MULTIUSO">
+                  <label for="checkbox" style="width: 125px; margin-top: 7px;">Un solo uso </label>
+                  <input type="checkbox" class="form-control sub-input" id="checkbox">
+                  <input type="hidden" class="sub-input" id="MULTIUSO" name="MULTIUSO" value="true">
                 </div>
               </div>
             </div>
@@ -43,7 +43,7 @@
     </div>
 
               
-    <button type="submit" class="btn btn-primary">Compartir</button>
+    <button type="button" class="btn btn-primary" id="compartir-btn">Compartir</button>
   </form>
 </div>
 <script type="text/javascript" src="{% static 'js/Dispositivo/compartir_llave.js' %}"></script>

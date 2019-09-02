@@ -21,8 +21,12 @@
                 <span data-feather="unlock" style="height: 25px; width: 25px;"></span>
               {% endif %}
               <ul class="list-unstyled mt-3 mb-4">
-                <li>4 llaves compartidas</li>
-                <li>Actividad hace 3 horas</li>
+                <li>{{ dispositivo.getLlavesCompartidas }}</li>
+                {% if dispositivo.getUltimaActividad %}
+                  <li>{{ dispositivo.getUltimaActividad }}</li>
+                {% else %}
+                  <li>No hay actividad</li>
+                {% endif %}
               </ul>
               <form method="GET" action="/dispositivos/ver/{{ dispositivo.id }}">
                 <button class="btn btn-lg btn-block btn-primary">Ver</button>

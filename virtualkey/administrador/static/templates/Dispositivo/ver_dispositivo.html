@@ -47,8 +47,16 @@
             {% else %}
               <td>{{ llave.correo }}</td>
             {% endif %}
-            <td>{{ llave.fecha_inicio }}</td>
-            <td>{{ llave.fecha_expiracion }}</td>
+            {% if llave.fecha_inicio %}
+              <td>{{ llave.fecha_inicio }}</td>
+            {% else %}
+              <td>N/A</td>
+            {% endif %}
+            {% if llave.fecha_inicio %}
+              <td>{{ llave.fecha_expiracion }}</td>
+            {% else %}
+              <td>N/A</td>
+            {% endif %}
             <td>{{ llave.estado }}</td>
             <td>
               {% if llave.estado == "Revocada" or llave.estado == "Expirada" %}

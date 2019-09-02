@@ -1,7 +1,7 @@
 import datetime
 import secrets
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -139,8 +139,9 @@ class Dispositivo(models.Model):
     @classmethod
     def create(cls, body):
         modelo = body.get("MODELO", None)
+        numero_serie = body.get("MAC", None)
         try:
-            dispositivo = cls(modelo=modelo, numero_serie=secrets.randbits(32))
+            dispositivo = cls(modelo=modelo, numero_serie=numero_serie)
             dispositivo.save()
             return dispositivo
         except:
@@ -217,6 +218,32 @@ class Dispositivo(models.Model):
         dispositivo.save()
         return dispositivo
 
+    @property
+    def getLlavesCompartidas(self):
+        llaves = Llave.objects.filter(dispositivo=self)
+        cantidad = len(llaves)
+        if cantidad == 0:
+            return "No existen llaves compartidas"
+        elif cantidad == 1:
+            return "1 llave compartida"
+        else:
+            return str(cantidad) + " llaves compartidas"
+
+    @property
+    def getUltimaActividad(self):
+        registro = Registro.objects.filter(dispositivo=self).latest('fecha')
+        tiempo = datetime.now(timezone.utc) - registro.fecha
+        minutos = int(tiempo.total_seconds() / 60)
+        if minutos < 60:
+            return "Ultima actividad hace " + str(minutos) + " minutos"
+        horas = int(minutos / 60)
+        if horas < 24: 
+            return "Ultima actividad hace " + str(horas) + " horas"
+        dias = int(horas / 24)
+        return "Ultima actividad hace " + str(dias) + " dias"
+        return str(minutessince)
+    
+
     def validar_numero_serie(self, numero_serie):
         if len(Dispositivo.objects.filter(numero_serie=numero_serie)) == 1:
             return True
@@ -258,7 +285,11 @@ class Llave(models.Model):
             if not dispositivo:
                 dispositivo = Dispositivo.objects.get(pk=dispositivo_id)
             usuario = Usuario().findbyemail(correo)
-            llave = cls(dispositivo=dispositivo, usuario=usuario, correo=correo, codigo=secrets.token_urlsafe(15), fecha_inicio=fecha_inicio, fecha_expiracion=fecha_expiracion)
+            llave = cls(dispositivo=dispositivo, usuario=usuario, correo=correo, codigo=secrets.token_urlsafe(15))
+            if not fecha_inicio == "":
+                llave.fecha_inicio = fecha_inicio
+            if not fecha_expiracion == "":
+                llave.fecha_expiracion = fecha_expiracion
             if es_multiuso == "False" or es_multiuso == "false":
                 llave.es_multiuso = False
             if es_dueno == "True" or es_dueno == "true":
@@ -267,16 +298,17 @@ class Llave(models.Model):
                 llave.acceso_ilimitado = True 
             llave.save()
             return llave
-        except:
+        except Exception as e:
+            print(str(e))
             return None
 
     @property
     def estado(self):
         if self.revocada:
             return "Revocada"
-        elif self.fecha_inicio > timezone.now():
+        elif self.fecha_inicio and self.fecha_inicio > timezone.now():
             return "No activa"
-        elif self.fecha_expiracion < timezone.now():
+        elif self.fecha_expiracion and self.fecha_expiracion < timezone.now():
             return "Expirada"
         return "Activa"
 
