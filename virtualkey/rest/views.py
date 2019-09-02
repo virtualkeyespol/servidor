@@ -225,9 +225,9 @@ def read_llaves_dispositivo(request):
         numero_serie = body.get("NUMERO_SERIE", None)
         numero_serie = numero_serie.replace("%", ":")
         if Dispositivo().validar_numero_serie(numero_serie):
-            respuesta = Llave().read(body)
-            print(respuesta)
             dispositivo = Dispositivo.objects.get(numero_serie=numero_serie)
+            llaves = Llave.objects.filter(dispositivo=dispositivo)
+            respuesta = utils.instancias_todic(llaves)
             if dispositivo.estado == True:
                 accion = 1
                 dispositivo.estado = False
