@@ -250,6 +250,13 @@ def verificar_llave(request):
         llave = Llave.objects.filter(codigo=codigo).first()
         print(llave, llave.estado)
         if llave and llave.estado == "Activa":
+            ##  CREANDO REGISTRO
+            registro = Registro()
+            registro.usuario = llave.usuario
+            registro.dispositivo = llave.dispositivo
+            registro.llave = llave
+            registro.save()
+
             return JsonResponse({
                 'STATUS' : 'OK'
             })
