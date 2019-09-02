@@ -244,21 +244,17 @@ def read_llaves_dispositivo(request):
     })
 
 def verificar_llave(request):
-    token = Sesion().is_autenticated(request)
-    if request.method == "GET" and token:
+    if request.method == "GET":
         body = request.GET
         codigo = body.get("CODIGO", None)
-        llave = Llave.objects.filter(codigo=codigo)
-        if len(llave == 1):
-            llave = llave.first()
+        llave = Llave.objects.filter(codigo=codigo).first()
+        if llave and llave.estado == "Activa":
             return JsonResponse({
-                'STATUS' : 'OK',
-                'RESPUESTA' : model_to_dict(llave)
+                'STATUS' : 'OK'
             })
         else:
             return JsonResponse({
-                'STATUS' : 'OK',
-                'RESPUESTA' : 'INVALIDA'
+                'STATUS' : 'ERROR',
             })
             
     return JsonResponse({
