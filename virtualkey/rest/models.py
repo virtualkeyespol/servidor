@@ -141,7 +141,7 @@ class Dispositivo(models.Model):
         modelo = body.get("MODELO", None)
         numero_serie = body.get("MAC", None)
         try:
-            dispositivo = cls(modelo=modelo, numero_serie=numero_serie)
+            dispositivo = cls(modelo=modelo, numero_serie=numero_serie.upper())
             dispositivo.save()
             return dispositivo
         except:

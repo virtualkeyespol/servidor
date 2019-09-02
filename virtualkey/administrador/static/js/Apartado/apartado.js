@@ -20,7 +20,6 @@ $(".mac-input").keyup(function() {
 function verificar() {
 	var value = true;
 	$(".input").each(function() {
-		console.log($(this).val(), $(this).val() == "");
 		if ($(this).val() == "") {
 			value = false;
 		}

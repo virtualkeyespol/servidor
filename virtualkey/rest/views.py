@@ -223,6 +223,7 @@ def read_llaves_dispositivo(request):
         accion = 0
         body = request.GET
         numero_serie = body.get("NUMERO_SERIE", None)
+        numero_serie = numero_serie.replace("%", ":")
         if Dispositivo().validar_numero_serie(numero_serie):
             respuesta = Llave().read(body)
             dispositivo = Dispositivo.objects.get(numero_serie=numero_serie)
