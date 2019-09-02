@@ -1,3 +1,4 @@
+{% load static %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
   <h1 class="h2">Compartir Llave de {{ DISPOSITIVO }}</h1>
 </div>
@@ -6,22 +7,43 @@
     {% csrf_token %}
     <div class="form-group">
       <label for="CORREO">Correo del usuario</label>
-      <input type="email" class="form-control" id="CORREO" name="CORREO" aria-describedby="emailHelp" placeholder="Ingrese correo">
+      <input type="email input" class="form-control" id="CORREO" name="CORREO" aria-describedby="emailHelp" placeholder="Ingrese correo">
     </div>
     <div class="form-group">
-      <label for="FECHA_INICIO">Fecha de inicio</label>
-      <input type="datetime-local" class="form-control" id="FECHA_INICIO" name="FECHA_INICIO">
-    </div>
-    <div class="form-group">
-      <label for="FECHA_EXPIRACION">Fecha de expiración</label>
-      <input type="datetime-local" class="form-control" id="FECHA_EXPIRACION" name="FECHA_EXPIRACION">
-    </div>
-    <div class="form-group">
-      <div style="display: flex;">
-        <label for="MULTIUSO" style="width: 100px; margin-top: 7px;">Un solo uso </label>
-        <input type="checkbox" class="form-control" id="MULTIUSO" name="MULTIUSO">
+       <label for="CORREO">Tipo de acceso</label>
+      <p>
+        <a class="btn btn-secondary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1" id="acceso_ilimitado">Acceso Ilimitado</a>
+        <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#multiCollapseExample2" aria-expanded="false" aria-controls="multiCollapseExample2" id="acceso_limitado">Acceso Limitado</button>
+        <input type="hidden" name="acceso" class="input">
+      </p>
+      <div class="row">
+        <div class="col">
+          <div class="collapse multi-collapse" id="multiCollapseExample2">
+            <div class="card card-body">
+              <div class="form-group">
+                <label for="FECHA_INICIO">Fecha de inicio</label>
+                <input type="datetime-local" class="form-control sub-input" id="FECHA_INICIO" name="FECHA_INICIO">
+              </div>
+              <div class="form-group">
+                <label for="FECHA_EXPIRACION">Fecha de expiración</label>
+                <input type="datetime-local" class="form-control sub-input" id="FECHA_EXPIRACION" name="FECHA_EXPIRACION">
+              </div>
+              <div class="form-group">
+                <div style="display: flex;">
+                  <label for="MULTIUSO" style="width: 300px; margin-top: 7px;">Un solo uso </label>
+                  <input type="checkbox" class="form-control sub-input" id="MULTIUSO" name="MULTIUSO">
+                  <label for="MULTIUSO" style="width: 300px; margin-top: 7px;">Multiuso</label>
+                  <input type="checkbox" class="form-control sub-input" id="MULTIUSO" name="MULTIUSO">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
+              
     <button type="submit" class="btn btn-primary">Compartir</button>
   </form>
 </div>
+<script type="text/javascript" src="{% static 'js/Dispositivo/compartir_llave.js' %}"></script>

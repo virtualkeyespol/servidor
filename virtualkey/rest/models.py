@@ -126,7 +126,7 @@ class Sesion(models.Model):
 class Dispositivo(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     modelo = models.CharField(max_length=50, default="")
-    numero_serie = models.CharField(max_length=10, default="")
+    numero_serie = models.CharField(max_length=17, default="")
     nombre = models.CharField(max_length=100, null=True)
     estado = models.BooleanField(default=False)
 
@@ -450,6 +450,7 @@ def get_dispositivo_data(dispositivo):
         "dispositivo_id" : dispositivo.id,
         "nombre_dispositivo" : dispositivo.nombre,
         "modelo" : dispositivo.modelo,
+        "mac" : dispositivo.numero_serie,
         "propietario_nombre" : dispositivo.usuario.first_name + dispositivo.usuario.last_name,
         "propietario_username" : dispositivo.usuario.username
     }
