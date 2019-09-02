@@ -267,7 +267,7 @@ class Llave(models.Model):
     acceso_ilimitado = models.BooleanField(default=False)
 
     def __str__(self):
-        return "Llave de: " + self.dispositivo.nombre + " | " + self.usuario.correo 
+        return "Llave de: " + self.dispositivo.nombre  
 
     @classmethod
     def create(cls, body):
