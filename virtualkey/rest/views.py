@@ -248,6 +248,7 @@ def verificar_llave(request):
         body = request.GET
         codigo = body.get("CODIGO", None)
         llave = Llave.objects.filter(codigo=codigo).first()
+        print(llave, llave.estado)
         if llave and llave.estado == "Activa":
             return JsonResponse({
                 'STATUS' : 'OK'
